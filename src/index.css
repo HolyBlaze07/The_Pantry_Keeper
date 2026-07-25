@@ -1,0 +1,28 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+  color: #34251c;
+  background: #eee2ca;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at top, #fff8df 0%, transparent 45%),
+    linear-gradient(135deg, #eee2ca, #d9c5a8);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
