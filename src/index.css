@@ -1,15 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=Gorditas:wght@400;700&family=Nunito:wght@400;600;700&display=swap");
 * {
   box-sizing: border-box;
 }
-
 html {
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
   color: #34251c;
   background: #eee2ca;
+  font-family: "Quicksand", sans-serif;
 }
+h1,
+h2,
+h3 {
+  font-family: "Gorditas", sans-serif;
+  font-weight: 700;
+}
+
+
+h4,
+h5,
+h6 {
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;}
+
+
+  p,
+  span,
+  li,
+  label,
+  button,
+  input,
+  select,
+  textarea 
+  dt,
+  dd {
+    font-family: "Quicksand", sans-serif;
+
+  }
 
 body {
   min-width: 320px;

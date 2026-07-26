@@ -1,4 +1,5 @@
 import "./App.css";
+import GroceryCard from "./components/cards/GroceryCard";
 import { sampleGroceries } from "./data/sampleGroceries";
 
 function App() {
@@ -21,6 +22,34 @@ function App() {
         </p>
 
         <button type="button">Open the Pantry Book</button>
+      </section>
+
+      <section
+        className="collection"
+        aria-labelledby="collection-heading"
+      >
+        <div className="collection__heading">
+          <div>
+            <p className="collection__label">Pantry records</p>
+
+            <h2 id="collection-heading">Your Grocery Collection</h2>
+          </div>
+
+          <span className="collection__total">
+            {sampleGroceries.length} cards
+          </span>
+        </div>
+
+        <div className="grocery-grid">
+          {sampleGroceries.map((item, index) => (
+            <GroceryCard
+              key={item.id}
+              item={item}
+              cardNumber={index + 1}
+              totalCards={sampleGroceries.length}
+            />
+          ))}
+        </div>
       </section>
     </main>
   );

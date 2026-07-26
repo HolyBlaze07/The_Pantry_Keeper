@@ -1,0 +1,226 @@
+.grocery-card {
+  position: relative;
+  width: 100%;
+  max-width: 390px;
+  overflow: hidden;
+  border: 3px solid #7a5538;
+  border-radius: 26px;
+  background: #d9b77f;
+  box-shadow:
+    0 18px 35px rgba(65, 41, 25, 0.2),
+    inset 0 0 0 5px rgba(255, 249, 230, 0.35);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.grocery-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 24px 45px rgba(65, 41, 25, 0.26),
+    inset 0 0 0 5px rgba(255, 249, 230, 0.42);
+}
+
+.grocery-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 255, 255, 0.48),
+      transparent 20%
+    ),
+    linear-gradient(
+      125deg,
+      transparent 25%,
+      rgba(255, 255, 255, 0.18) 42%,
+      transparent 58%
+    );
+}
+
+.grocery-card__inner {
+  position: relative;
+  z-index: 1;
+  margin: 9px;
+  padding: 1rem;
+  border: 2px solid rgba(76, 48, 29, 0.58);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      rgba(255, 252, 241, 0.95),
+      rgba(246, 232, 203, 0.96)
+    );
+}
+
+.grocery-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 70px;
+}
+
+.grocery-card__category {
+  margin: 0 0 0.25rem;
+  color: #83613f;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.grocery-card__name {
+  margin: 0;
+  color: #402a1d;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  line-height: 1;
+}
+
+.grocery-card__storage {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #a98256;
+  border-radius: 12px;
+  background: #f4e4c3;
+  text-align: right;
+}
+
+.grocery-card__storage span {
+  display: block;
+  color: #795e45;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.grocery-card__storage strong {
+  color: #4d3524;
+  font-size: 0.86rem;
+}
+
+.grocery-card__artwork {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  margin: 1rem 0;
+  overflow: hidden;
+  border: 3px solid #8b6745;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at center, #fff8df 0%, transparent 34%),
+    linear-gradient(145deg, #e8d4a9, #cda875);
+}
+
+.grocery-card__artwork::before,
+.grocery-card__artwork::after {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border: 1px solid rgba(96, 62, 36, 0.18);
+  border-radius: 50%;
+}
+
+.grocery-card__artwork::after {
+  width: 115px;
+  height: 115px;
+}
+
+
+img.grocery-card__sprite {
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.grocery-card__sprite-name {
+  position: absolute;
+  right: 0.65rem;
+  bottom: 0.55rem;
+  color: #65482f;
+  font-size: 0.7rem;
+  text-transform: capitalize;
+}
+
+.grocery-card__details {
+  margin: 0;
+  border-top: 1px solid rgba(89, 58, 35, 0.32);
+}
+
+.grocery-card__detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(89, 58, 35, 0.25);
+}
+
+.grocery-card__detail dt {
+  color: #785b43;
+}
+
+.grocery-card__detail dd {
+  margin: 0;
+  color: #412c1f;
+  font-weight: 700;
+  text-align: right;
+}
+
+.grocery-card__feature {
+  margin-top: 1rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(96, 64, 39, 0.35);
+  border-radius: 14px;
+  background: rgba(255, 249, 232, 0.7);
+}
+
+.grocery-card__feature-title {
+  margin: 0 0 0.3rem;
+  color: #523722;
+  font-weight: 700;
+}
+
+.grocery-card__feature p:last-child {
+  margin: 0;
+  color: #68513f;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.grocery-card__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.85rem;
+  color: #755b45;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 430px) {
+  .grocery-card__header {
+    flex-direction: column;
+  }
+
+  .grocery-card__storage {
+    text-align: left;
+  }
+
+  .grocery-card__artwork {
+    min-height: 190px;
+  }
+
+  .grocery-card__sprite {
+    font-size: 6rem;
+  }
+
+  img.grocery-card__sprite {
+    width: 112px;
+    height: 112px;
+  }
+}
