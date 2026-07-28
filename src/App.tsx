@@ -7,6 +7,7 @@ import AddGroceryForm from "./components/inventory/AddGroceryForm";
 import StockPreferenceModal from "./components/inventory/StockPreferenceModal";
 import PantryDashboard from "./components/dashboard/PantryDashboard";
 import ShoppingList from "./components/shopping/ShoppingList";
+import ConfirmModal from "./components/ui/ConfirmModal";
 import { sampleGroceries } from "./data/sampleGroceries";
 import PixelBlast from "./components/backgrounds/PixelBlast";
 import { useEffect, useMemo, useState } from "react";
@@ -27,6 +28,9 @@ function App() {
   const [groceryToEdit, setGroceryToEdit] = useState<GroceryItem | null>(null);
   const [groceryToPersonalize, setGroceryToPersonalize] =
     useState<GroceryItem | null>(null);
+  const [groceryPendingRemoval, setGroceryPendingRemoval] =
+    useState<GroceryItem | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const groceryCount = groceries.length;
   const categories = useMemo(() => {
     return Array.from(
@@ -119,6 +123,64 @@ function App() {
     saveGroceries(groceries);
   }, [groceries]);
 
+  useEffect(() => {
+    function handleEscapeKey(event: KeyboardEvent) {
+      if (event.key !== "Escape") {
+        return;
+      }
+
+      if (groceryPendingRemoval) {
+        setGroceryPendingRemoval(null);
+        return;
+      }
+
+      if (isResetConfirmOpen) {
+        setIsResetConfirmOpen(false);
+        return;
+      }
+
+      if (groceryToPersonalize) {
+        setGroceryToPersonalize(null);
+        return;
+      }
+
+      if (isFormOpen) {
+        setIsFormOpen(false);
+        setGroceryToEdit(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleEscapeKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscapeKey);
+    };
+  }, [
+    groceryPendingRemoval,
+    groceryToPersonalize,
+    isFormOpen,
+    isResetConfirmOpen,
+  ]);
+
+  useEffect(() => {
+    const modalIsOpen =
+      isFormOpen ||
+      groceryPendingRemoval !== null ||
+      groceryToPersonalize !== null ||
+      isResetConfirmOpen;
+
+    document.body.style.overflow = modalIsOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [
+    groceryPendingRemoval,
+    groceryToPersonalize,
+    isFormOpen,
+    isResetConfirmOpen,
+  ]);
+
   function handleIncreaseQuantity(groceryId: string) {
     setGroceries((currentGroceries) =>
       currentGroceries.map((grocery) =>
@@ -143,17 +205,8 @@ function App() {
       }
 
       if (selectedGrocery.quantity === 1) {
-        const shouldRemove = window.confirm(
-          `${selectedGrocery.name} will reach zero. Remove it from your inventory?`,
-        );
-
-        if (!shouldRemove) {
-          return currentGroceries;
-        }
-
-        return currentGroceries.filter(
-          (grocery) => grocery.id !== groceryId,
-        );
+        setGroceryPendingRemoval(selectedGrocery);
+        return currentGroceries;
       }
 
       return currentGroceries.map((grocery) =>
@@ -165,6 +218,20 @@ function App() {
           : grocery,
       );
     });
+  }
+
+  function handleConfirmRemoval() {
+    if (!groceryPendingRemoval) {
+      return;
+    }
+
+    setGroceries((currentGroceries) =>
+      currentGroceries.filter(
+        (grocery) => grocery.id !== groceryPendingRemoval.id,
+      ),
+    );
+
+    setGroceryPendingRemoval(null);
   }
 
   function handleSaveGrocery(savedGrocery: GroceryItem) {
@@ -319,6 +386,19 @@ function App() {
     setSortBy("name-ascending");
   }
 
+  function handleResetInventory() {
+    setGroceries(sampleGroceries);
+    setSearchQuery("");
+    setCategoryFilter("all");
+    setLocationFilter("all");
+    setStatusFilter("all");
+    setSortBy("name-ascending");
+    setGroceryToEdit(null);
+    setIsFormOpen(false);
+    setGroceryPendingRemoval(null);
+    setGroceryToPersonalize(null);
+  }
+
   return (
     <main className="app">
       <div className="app-snow" aria-hidden="true">
@@ -432,17 +512,36 @@ function App() {
           </div>
 
           <div className="collection__grid">
-            {visibleGroceries.length === 0 && (
+            {groceries.length === 0 ? (
               <div className="inventory-empty-state">
                 <p className="inventory-empty-state__eyebrow">
-                  No pantry records found
+                  Your collection is empty
+                </p>
+
+                <h3>Start building your pantry.</h3>
+
+                <p>
+                  Add your first grocery to begin tracking stock,
+                  freshness, and shopping needs.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGroceryToEdit(null);
+                    setIsFormOpen(true);
+                  }}
+                >
+                  Add Your First Grocery
+                </button>
+              </div>
+            ) : visibleGroceries.length === 0 ? (
+              <div className="inventory-empty-state">
+                <p className="inventory-empty-state__eyebrow">
+                  No matches found
                 </p>
 
                 <h3>Nothing matches those filters.</h3>
-
-                <p>
-                  Try another search or clear your active filters.
-                </p>
 
                 <button
                   type="button"
@@ -451,23 +550,64 @@ function App() {
                   Clear Filters
                 </button>
               </div>
+            ) : (
+              visibleGroceries.map((item, index) => (
+                <GroceryCard
+                  key={item.id}
+                  item={item}
+                  cardNumber={index + 1}
+                  totalCards={visibleGroceries.length}
+                  onIncreaseQuantity={handleIncreaseQuantity}
+                  onDecreaseQuantity={handleDecreaseQuantity}
+                  onEditGrocery={handleEditGrocery}
+                  onToggleShoppingList={handleToggleShoppingList}
+                />
+              ))
             )}
-
-            {visibleGroceries.map((item, index) => (
-              <GroceryCard
-                key={item.id}
-                item={item}
-                cardNumber={index + 1}
-                totalCards={visibleGroceries.length}
-                onIncreaseQuantity={handleIncreaseQuantity}
-                onDecreaseQuantity={handleDecreaseQuantity}
-                onEditGrocery={handleEditGrocery}
-                onToggleShoppingList={handleToggleShoppingList}
-              />
-            ))}
           </div>
         </section>
+
+        <section className="app-settings" aria-label="Inventory settings">
+          <p className="app-settings__title">Inventory settings</p>
+
+          <p className="app-settings__description">
+            Need a clean slate for demos or testing?
+          </p>
+
+          <button
+            type="button"
+            className="app-settings__reset-button"
+            onClick={() => setIsResetConfirmOpen(true)}
+          >
+            Reset Inventory
+          </button>
+        </section>
       </div>
+
+      {groceryPendingRemoval && (
+        <ConfirmModal
+          title={`Remove ${groceryPendingRemoval.name}?`}
+          message={`This will remove ${groceryPendingRemoval.name} from your pantry collection.`}
+          confirmLabel="Remove Item"
+          onCancel={() => setGroceryPendingRemoval(null)}
+          onConfirm={handleConfirmRemoval}
+          variant="danger"
+        />
+      )}
+
+      {isResetConfirmOpen && (
+        <ConfirmModal
+          title="Reset inventory?"
+          message="This will replace your current pantry with the sample groceries."
+          confirmLabel="Reset Inventory"
+          onCancel={() => setIsResetConfirmOpen(false)}
+          onConfirm={() => {
+            handleResetInventory();
+            setIsResetConfirmOpen(false);
+          }}
+          variant="danger"
+        />
+      )}
 
     </main>
   );

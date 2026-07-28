@@ -60,6 +60,12 @@
   cursor: pointer;
 }
 
+.stock-preference-modal__stepper:focus-visible,
+.stock-preference-modal .button:focus-visible {
+  outline: 3px solid rgba(126, 83, 49, 0.32);
+  outline-offset: 2px;
+}
+
 .stock-preference-modal__value {
   min-width: 120px;
   padding: 0.8rem 1rem;

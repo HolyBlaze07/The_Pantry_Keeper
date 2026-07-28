@@ -1,18 +1,19 @@
 # The Pantry Keeper
 
-A whimsical grocery inventory application where every grocery item becomes a collectible personalized card inside an interactive pantry book.
+The Pantry Keeper is a grocery inventory application that helps users track food quantities, expiration dates, preferred stock levels, and shopping needs.
 
-## Features (MVP)
+## Features
 
-- 📖 Interactive pantry book
-- 🥕 Collectible grocery cards
-- 🍓 Food sprites
-- 📅 Expiration tracking
-- 📦 Quantity management
-- ⚖️ Weight tracking
-- 💲 Optional price tracking
-- 🧊 Pantry, fridge, freezer organization
-- 💾 Local storage
+- Grocery inventory cards
+- Expiration tracking
+- Preferred stock levels
+- Pantry dashboard
+- Search, filtering, and sorting
+- Automatic and manual shopping lists
+- Editable shopping quantities
+- Estimated shopping costs
+- Local storage persistence
+- Responsive interface
 
 ## Built With
 
@@ -20,9 +21,37 @@ A whimsical grocery inventory application where every grocery item becomes a col
 - TypeScript
 - Vite
 - CSS
+- Local Storage
 
-## Current Status
+## Run Locally
 
-🚧 Currently under development
+```bash
+npm install
+npm run dev
+```
 
-Day 1 Complete ✅
+## Portfolio Case Study
+
+### The Problem
+Households often purchase duplicate groceries, forget what they already own, and discover food only after it has expired.
+
+### The Solution
+The Pantry Keeper combines inventory tracking, expiration awareness, personalized stock goals, and automatic shopping suggestions in a playful collectible-card interface.
+
+### My Role
+- Product planning
+- UI design
+- Front-end development
+- Responsive design
+- State management
+- Local persistence
+- Testing
+
+### Future Improvements
+- Cloud accounts and synchronization
+- Barcode scanning
+- Receipt importing
+- Recipe suggestions
+- Meal planning
+- Inventory history
+- Interactive 3D pantry book

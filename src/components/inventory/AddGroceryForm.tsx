@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   GroceryCategory,
   GroceryItem,
@@ -81,6 +81,7 @@ function AddGroceryForm({
   onClose,
   groceryToEdit,
 }: AddGroceryFormProps) {
+  const dialogRef = useRef<HTMLElement | null>(null);
   const [name, setName] = useState(groceryToEdit?.name ?? "");
   const [category, setCategory] = useState<GroceryCategory>(
     groceryToEdit?.category ?? "Fruit",
@@ -106,6 +107,14 @@ function AddGroceryForm({
     groceryToEdit?.storageLocation ?? "Pantry",
   );
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const focusTarget = dialogRef.current?.querySelector<HTMLElement>(
+      "input, select, button, textarea",
+    );
+
+    focusTarget?.focus();
+  }, []);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -142,34 +151,41 @@ function AddGroceryForm({
   }
 
   return (
-    <section className="add-grocery-panel" aria-labelledby="add-grocery-heading">
-      <div className="add-grocery-panel__header">
-        <div>
-          <p className="add-grocery-panel__eyebrow">
-            {groceryToEdit ? "Update pantry item" : "New pantry item"}
-          </p>
+    <div className="add-grocery-panel__backdrop" role="presentation">
+      <section
+        ref={dialogRef}
+        className="add-grocery-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-grocery-heading"
+      >
+        <div className="add-grocery-panel__header">
+          <div>
+            <p className="add-grocery-panel__eyebrow">
+              {groceryToEdit ? "Update pantry item" : "New pantry item"}
+            </p>
 
-          <h2 id="add-grocery-heading">
-            {groceryToEdit ? "Edit Grocery" : "Add a Grocery"}
-          </h2>
+            <h2 id="add-grocery-heading">
+              {groceryToEdit ? "Edit Grocery" : "Add a Grocery"}
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            className="add-grocery-panel__close"
+            onClick={onClose}
+            aria-label="Close add grocery form"
+          >
+            ×
+          </button>
         </div>
 
-        <button
-          type="button"
-          className="add-grocery-panel__close"
-          onClick={onClose}
-          aria-label="Close add grocery form"
-        >
-          ×
-        </button>
-      </div>
-
-      <form className="add-grocery-form" onSubmit={handleSubmit}>
-        {error && (
-          <p className="add-grocery-form__error" role="alert">
-            {error}
-          </p>
-        )}
+        <form className="add-grocery-form" onSubmit={handleSubmit}>
+          {error && (
+            <p className="add-grocery-form__error" role="alert">
+              {error}
+            </p>
+          )}
 
         <div className="form-field form-field--wide">
           <label htmlFor="grocery-name">Grocery name</label>
@@ -309,19 +325,20 @@ function AddGroceryForm({
           />
         </div>
 
-        <SpritePicker selectedSpriteId={spriteId} onSelectSprite={setSpriteId} />
+          <SpritePicker selectedSpriteId={spriteId} onSelectSprite={setSpriteId} />
 
-        <div className="add-grocery-form__actions">
-          <button type="button" className="button button--secondary" onClick={onClose}>
-            Cancel
-          </button>
+          <div className="add-grocery-form__actions">
+            <button type="button" className="button button--secondary" onClick={onClose}>
+              Cancel
+            </button>
 
-          <button type="submit" className="button button--primary">
-            {groceryToEdit ? "Save Changes" : "Save Grocery"}
-          </button>
-        </div>
-      </form>
-    </section>
+            <button type="submit" className="button button--primary">
+              {groceryToEdit ? "Save Changes" : "Save Grocery"}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 }
 

@@ -1,8 +1,21 @@
 @import "./SpritePicker.css";
 
+.add-grocery-panel__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(60, 39, 24, 0.5);
+  backdrop-filter: blur(5px);
+}
+
 .add-grocery-panel {
   width: min(100%, 900px);
-  margin: 0 auto 2rem;
+  max-height: calc(100vh - 2rem);
+  margin: 0;
+  overflow: auto;
   padding: clamp(1.25rem, 4vw, 2rem);
   border: 2px solid #8b6847;
   border-radius: 28px;
@@ -51,6 +64,12 @@
 
 .add-grocery-panel__close:hover {
   background: #ead1a5;
+}
+
+.add-grocery-panel__close:focus-visible,
+.button:focus-visible {
+  outline: 3px solid rgba(126, 83, 49, 0.32);
+  outline-offset: 2px;
 }
 
 .add-grocery-form {
@@ -167,6 +186,10 @@
 }
 
 @media (max-width: 650px) {
+  .add-grocery-panel {
+    max-height: calc(100vh - 1rem);
+  }
+
   .add-grocery-form {
     grid-template-columns: 1fr;
   }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { GroceryItem } from "../../types/grocery";
 import "./StockPreferenceModal.css";
 
@@ -13,6 +13,7 @@ function StockPreferenceModal({
   onSave,
   onSkip,
 }: StockPreferenceModalProps) {
+  const dialogRef = useRef<HTMLElement | null>(null);
   const initialPreferredQuantity = useMemo(
     () => Math.max(grocery.quantity, 1),
     [grocery.quantity],
@@ -21,9 +22,18 @@ function StockPreferenceModal({
     initialPreferredQuantity,
   );
 
+  useEffect(() => {
+    const focusTarget = dialogRef.current?.querySelector<HTMLElement>(
+      "button",
+    );
+
+    focusTarget?.focus();
+  }, []);
+
   return (
     <div className="stock-preference-modal__backdrop" role="presentation">
       <section
+        ref={dialogRef}
         className="stock-preference-modal"
         role="dialog"
         aria-modal="true"

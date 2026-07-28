@@ -1,0 +1,91 @@
+.confirm-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(60, 39, 24, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.confirm-modal {
+  width: min(100%, 470px);
+  padding: 1.25rem;
+  border: 2px solid #8b6847;
+  border-radius: 20px;
+  background: rgba(255, 249, 232, 0.98);
+  box-shadow: 0 22px 55px rgba(56, 35, 21, 0.3);
+}
+
+.confirm-modal h2 {
+  margin: 0;
+  color: #432b1e;
+  font-size: clamp(1.3rem, 4vw, 1.9rem);
+}
+
+.confirm-modal p {
+  margin: 0.7rem 0 0;
+  color: #6a5240;
+  line-height: 1.5;
+}
+
+.confirm-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+
+.confirm-modal__button {
+  min-height: 42px;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-modal__button--cancel {
+  border: 1px solid #927050;
+  background: #f8ead0;
+  color: #4c3423;
+}
+
+.confirm-modal__button--cancel:hover {
+  background: #ecd7b3;
+}
+
+.confirm-modal__button--confirm {
+  border: 1px solid #68462f;
+  background: #68462f;
+  color: #ffffff;
+}
+
+.confirm-modal__button--confirm:hover {
+  background: #4d3221;
+}
+
+.confirm-modal__button--danger {
+  border-color: #8a3f37;
+  background: #8a3f37;
+}
+
+.confirm-modal__button--danger:hover {
+  background: #6d312c;
+}
+
+.confirm-modal__button:focus-visible {
+  outline: 3px solid rgba(126, 83, 49, 0.32);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .confirm-modal__actions {
+    flex-direction: column-reverse;
+  }
+
+  .confirm-modal__button {
+    width: 100%;
+  }
+}

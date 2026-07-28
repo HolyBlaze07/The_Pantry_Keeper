@@ -76,6 +76,7 @@
   color: #402a1d;
   font-size: clamp(1.5rem, 5vw, 2rem);
   line-height: 1;
+  overflow-wrap: anywhere;
 }
 
 .grocery-card__badges {
@@ -448,6 +449,15 @@ img.grocery-card__sprite {
 
   .grocery-card__inventory-meta {
     font-size: 0.74rem;
+  }
+
+  .quantity-controls {
+    gap: 0.35rem;
+  }
+
+  .quantity-controls__value {
+    min-width: 66px;
+    font-size: 0.86rem;
   }
 
   .grocery-card__artwork {
