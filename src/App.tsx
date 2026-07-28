@@ -1,23 +1,118 @@
 import "./App.css";
 import GroceryCard from "./components/cards/GroceryCard";
+import InventoryFilters, {
+  type InventorySort,
+} from "./components/inventory/InventoryFilters";
 import AddGroceryForm from "./components/inventory/AddGroceryForm";
 import StockPreferenceModal from "./components/inventory/StockPreferenceModal";
 import PantryDashboard from "./components/dashboard/PantryDashboard";
 import { sampleGroceries } from "./data/sampleGroceries";
 import PixelBlast from "./components/backgrounds/PixelBlast";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { GroceryItem } from "./types/grocery";
+import { getExpirationDetails } from "./utils/expiration";
 import { loadGroceries, saveGroceries } from "./utils/inventoryStorage";
 
 function App() {
   const [groceries, setGroceries] = useState(() =>
     loadGroceries(sampleGroceries),
   );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<InventorySort>("name-ascending");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [groceryToEdit, setGroceryToEdit] = useState<GroceryItem | null>(null);
   const [groceryToPersonalize, setGroceryToPersonalize] =
     useState<GroceryItem | null>(null);
   const groceryCount = groceries.length;
+  const categories = useMemo(() => {
+    return Array.from(
+      new Set(groceries.map((grocery) => grocery.category)),
+    ).sort();
+  }, [groceries]);
+
+  const locations = useMemo(() => {
+    return Array.from(
+      new Set(groceries.map((grocery) => grocery.storageLocation)),
+    ).sort();
+  }, [groceries]);
+
+  const visibleGroceries = useMemo(() => {
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+
+    const filteredGroceries = groceries.filter((grocery) => {
+      const matchesSearch =
+        normalizedSearch === "" ||
+        grocery.name.toLowerCase().includes(normalizedSearch) ||
+        grocery.category.toLowerCase().includes(normalizedSearch);
+
+      const matchesCategory =
+        categoryFilter === "all" || grocery.category === categoryFilter;
+
+      const matchesLocation =
+        locationFilter === "all" || grocery.storageLocation === locationFilter;
+
+      const expirationStatus = getExpirationDetails(grocery.expirationDate).status;
+
+      const preferredQuantity = grocery.preferredQuantity ?? grocery.quantity;
+      const stockPercentage =
+        preferredQuantity > 0
+          ? (grocery.quantity / preferredQuantity) * 100
+          : 100;
+      const isRunningLow = stockPercentage < 40;
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        expirationStatus === statusFilter ||
+        (statusFilter === "running-low" && isRunningLow);
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesLocation &&
+        matchesStatus
+      );
+    });
+
+    return [...filteredGroceries].sort((first, second) => {
+      switch (sortBy) {
+        case "name-descending":
+          return second.name.localeCompare(first.name);
+
+        case "expiration-soonest": {
+          if (!first.expirationDate) return 1;
+          if (!second.expirationDate) return -1;
+
+          return (
+            new Date(first.expirationDate).getTime() -
+            new Date(second.expirationDate).getTime()
+          );
+        }
+
+        case "quantity-lowest":
+          return first.quantity - second.quantity;
+
+        case "recently-added":
+          return (
+            new Date(second.dateAdded).getTime() -
+            new Date(first.dateAdded).getTime()
+          );
+
+        case "name-ascending":
+        default:
+          return first.name.localeCompare(second.name);
+      }
+    });
+  }, [
+    groceries,
+    searchQuery,
+    categoryFilter,
+    locationFilter,
+    statusFilter,
+    sortBy,
+  ]);
 
   useEffect(() => {
     saveGroceries(groceries);
@@ -122,6 +217,14 @@ function App() {
     setGroceryToPersonalize(null);
   }
 
+  function handleClearFilters() {
+    setSearchQuery("");
+    setCategoryFilter("all");
+    setLocationFilter("all");
+    setStatusFilter("all");
+    setSortBy("name-ascending");
+  }
+
   return (
     <main className="app">
       <div className="app-snow" aria-hidden="true">
@@ -195,6 +298,23 @@ function App() {
 
         <PantryDashboard groceries={groceries} />
 
+        <InventoryFilters
+          searchQuery={searchQuery}
+          categoryFilter={categoryFilter}
+          locationFilter={locationFilter}
+          statusFilter={statusFilter}
+          sortBy={sortBy}
+          categories={categories}
+          locations={locations}
+          resultCount={visibleGroceries.length}
+          onSearchChange={setSearchQuery}
+          onCategoryChange={setCategoryFilter}
+          onLocationChange={setLocationFilter}
+          onStatusChange={setStatusFilter}
+          onSortChange={setSortBy}
+          onClearFilters={handleClearFilters}
+        />
+
         <section
           className="collection"
           aria-labelledby="collection-heading"
@@ -207,17 +327,38 @@ function App() {
             </div>
 
             <span className="collection__total">
-              {groceries.length} cards
+              {visibleGroceries.length} cards
             </span>
           </div>
 
           <div className="collection__grid">
-            {groceries.map((item, index) => (
+            {visibleGroceries.length === 0 && (
+              <div className="inventory-empty-state">
+                <p className="inventory-empty-state__eyebrow">
+                  No pantry records found
+                </p>
+
+                <h3>Nothing matches those filters.</h3>
+
+                <p>
+                  Try another search or clear your active filters.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
+
+            {visibleGroceries.map((item, index) => (
               <GroceryCard
                 key={item.id}
                 item={item}
                 cardNumber={index + 1}
-                totalCards={groceries.length}
+                totalCards={visibleGroceries.length}
                 onIncreaseQuantity={handleIncreaseQuantity}
                 onDecreaseQuantity={handleDecreaseQuantity}
                 onEditGrocery={handleEditGrocery}

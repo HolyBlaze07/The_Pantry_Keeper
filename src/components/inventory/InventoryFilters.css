@@ -1,0 +1,115 @@
+.inventory-filters {
+  width: min(100%, 1180px);
+  margin: 0 auto 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(89, 55, 31, 0.25);
+  border-radius: 24px;
+  background: rgba(255, 248, 228, 0.88);
+}
+
+.inventory-filters__search {
+  margin-bottom: 1rem;
+}
+
+.inventory-filters label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #60442f;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.inventory-filters input,
+.inventory-filters select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #b7966c;
+  border-radius: 12px;
+  background: #fffaf0;
+  color: #422b1d;
+  font: inherit;
+}
+
+.inventory-filters input:focus,
+.inventory-filters select:focus {
+  outline: 3px solid rgba(126, 83, 49, 0.24);
+  outline-offset: 2px;
+}
+
+.inventory-filters__controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.inventory-filters__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.inventory-filters__footer p {
+  margin: 0;
+  color: #6f5742;
+}
+
+.inventory-filters__footer button,
+.inventory-empty-state button {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #775137;
+  border-radius: 999px;
+  background: #f3dfb8;
+  color: #4b3020;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inventory-filters__footer button:hover,
+.inventory-empty-state button:hover {
+  background: #e7ca96;
+}
+
+.inventory-empty-state {
+  grid-column: 1 / -1;
+  padding: 3rem 1.5rem;
+  border: 1px dashed #ad8963;
+  border-radius: 20px;
+  background: rgba(255, 250, 239, 0.75);
+  text-align: center;
+}
+
+.inventory-empty-state h3 {
+  margin: 0.35rem 0;
+}
+
+.inventory-empty-state__eyebrow {
+  margin: 0;
+  color: #85674d;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 850px) {
+  .inventory-filters__controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .inventory-filters__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .inventory-filters__footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
