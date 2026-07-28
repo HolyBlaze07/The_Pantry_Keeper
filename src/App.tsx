@@ -2,6 +2,7 @@ import "./App.css";
 import GroceryCard from "./components/cards/GroceryCard";
 import AddGroceryForm from "./components/inventory/AddGroceryForm";
 import StockPreferenceModal from "./components/inventory/StockPreferenceModal";
+import PantryDashboard from "./components/dashboard/PantryDashboard";
 import { sampleGroceries } from "./data/sampleGroceries";
 import PixelBlast from "./components/backgrounds/PixelBlast";
 import { useEffect, useState } from "react";
@@ -191,6 +192,8 @@ function App() {
             onSkip={() => setGroceryToPersonalize(null)}
           />
         )}
+
+        <PantryDashboard groceries={groceries} />
 
         <section
           className="collection"

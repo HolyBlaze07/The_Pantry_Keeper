@@ -1,0 +1,124 @@
+.pantry-dashboard {
+  margin-bottom: 2rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid rgba(91, 59, 35, 0.28);
+  border-radius: 28px;
+  background: rgba(255, 249, 232, 0.9);
+  backdrop-filter: blur(5px);
+}
+
+.pantry-dashboard__heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(91, 59, 35, 0.2);
+}
+
+.pantry-dashboard__eyebrow {
+  margin: 0 0 0.3rem;
+  color: #826348;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.pantry-dashboard h2 {
+  margin: 0;
+  color: #442d20;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+}
+
+.pantry-dashboard__summary {
+  max-width: 390px;
+  margin: 0;
+  color: #735b47;
+  line-height: 1.55;
+  text-align: right;
+}
+
+.pantry-dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.pantry-stat {
+  min-height: 145px;
+  padding: 1rem;
+  border: 1px solid #b69a7a;
+  border-radius: 18px;
+  background: #fffaf0;
+}
+
+.pantry-stat__label {
+  margin: 0;
+  color: #624832;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.pantry-stat__value {
+  margin: 0.45rem 0 0;
+  color: #40291c;
+  font-family: "Gorditas", serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pantry-stat__detail {
+  margin: 0.65rem 0 0;
+  color: #765e49;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.pantry-stat--fresh {
+  border-color: #7e9a68;
+  background: #edf5e5;
+}
+
+.pantry-stat--soon {
+  border-color: #c0913f;
+  background: #fff3d3;
+}
+
+.pantry-stat--today {
+  border-color: #bd6c3e;
+  background: #fbe3cf;
+}
+
+.pantry-stat--expired {
+  border-color: #a1544f;
+  background: #f5d9d6;
+}
+
+.pantry-stat--low {
+  border-color: #a66a3f;
+  background: #f6e1ce;
+}
+
+@media (max-width: 700px) {
+  .pantry-dashboard__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pantry-dashboard__summary {
+    text-align: left;
+  }
+
+  .pantry-dashboard__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px) {
+  .pantry-dashboard__grid {
+    grid-template-columns: 1fr;
+  }
+}
