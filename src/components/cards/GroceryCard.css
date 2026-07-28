@@ -294,8 +294,32 @@ img.grocery-card__sprite {
 
 .grocery-card__actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 0.5rem;
   margin-top: 0.8rem;
+}
+
+.grocery-card__shopping-button {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #8b6847;
+  border-radius: 999px;
+  background: #fff8e8;
+  color: #4b3121;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.grocery-card__shopping-button[aria-pressed="true"] {
+  border-color: #758d61;
+  background: #e5eedc;
+  color: #405334;
+}
+
+.grocery-card__shopping-button:hover {
+  background: #f0ddba;
 }
 
 .grocery-card__edit-button {

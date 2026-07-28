@@ -20,9 +20,12 @@ function ShoppingList({
         0,
       );
 
+      const purchaseQuantity =
+        quantityNeeded > 0 ? quantityNeeded : 1;
+
       const estimatedCost =
         grocery.price !== undefined
-          ? grocery.price * quantityNeeded
+          ? grocery.price * purchaseQuantity
           : 0;
 
       return {
@@ -32,7 +35,11 @@ function ShoppingList({
         estimatedCost,
       };
     })
-    .filter((item) => item.quantityNeeded > 0);
+    .filter(
+      ({ grocery, quantityNeeded }) =>
+        quantityNeeded > 0 ||
+        grocery.isManuallyAddedToShoppingList === true,
+    );
 
   const totalEstimatedCost = shoppingItems.reduce(
     (total, item) => total + item.estimatedCost,
@@ -109,7 +116,9 @@ function ShoppingList({
                   </div>
 
                   <span className="shopping-item__need">
-                    Need {quantityNeeded}
+                    {quantityNeeded > 0
+                      ? `Need ${quantityNeeded}`
+                      : "Manually Added"}
                   </span>
                 </div>
 

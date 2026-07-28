@@ -227,12 +227,30 @@ function App() {
 
         const preferredQuantity =
           grocery.preferredQuantity ?? grocery.quantity;
+        const isBelowPreferred = grocery.quantity < preferredQuantity;
 
         return {
           ...grocery,
-          quantity: preferredQuantity,
+          quantity: isBelowPreferred
+            ? preferredQuantity
+            : grocery.quantity + 1,
+          isManuallyAddedToShoppingList: false,
         };
       }),
+    );
+  }
+
+  function handleToggleShoppingList(groceryId: string) {
+    setGroceries((currentGroceries) =>
+      currentGroceries.map((grocery) =>
+        grocery.id === groceryId
+          ? {
+              ...grocery,
+              isManuallyAddedToShoppingList:
+                !grocery.isManuallyAddedToShoppingList,
+            }
+          : grocery,
+      ),
     );
   }
 
@@ -386,6 +404,7 @@ function App() {
                 onIncreaseQuantity={handleIncreaseQuantity}
                 onDecreaseQuantity={handleDecreaseQuantity}
                 onEditGrocery={handleEditGrocery}
+                onToggleShoppingList={handleToggleShoppingList}
               />
             ))}
           </div>

@@ -11,6 +11,7 @@ type GroceryCardProps = {
   onIncreaseQuantity: (groceryId: string) => void;
   onDecreaseQuantity: (groceryId: string) => void;
   onEditGrocery: (grocery: GroceryItem) => void;
+  onToggleShoppingList: (groceryId: string) => void;
 };
 
 function formatPrice(price?: number) {
@@ -45,6 +46,7 @@ function GroceryCard({
   onIncreaseQuantity,
   onDecreaseQuantity,
   onEditGrocery,
+  onToggleShoppingList,
 }: GroceryCardProps) {
   const selectedSprite = spriteCatalog.find(
     (sprite) => sprite.id === item.spriteId,
@@ -232,6 +234,25 @@ function GroceryCard({
         </section>
 
         <div className="grocery-card__actions">
+          <button
+            type="button"
+            className="grocery-card__shopping-button"
+            onClick={() => onToggleShoppingList(item.id)}
+            aria-pressed={item.isManuallyAddedToShoppingList ?? false}
+            aria-label={
+              item.isManuallyAddedToShoppingList
+                ? `Remove ${item.name} from shopping list`
+                : `Add ${item.name} to shopping list`
+            }
+            title={
+              item.isManuallyAddedToShoppingList
+                ? "Remove from Shopping List"
+                : "Add to Shopping List"
+            }
+          >
+            {item.isManuallyAddedToShoppingList ? "✓ Listed" : "+ List"}
+          </button>
+
           <button
             type="button"
             className="grocery-card__edit-button"

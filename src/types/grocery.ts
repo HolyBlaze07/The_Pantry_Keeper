@@ -70,6 +70,7 @@ export type GroceryItem = {
   category: GroceryCategory;
   quantity: number;
   preferredQuantity?: number;
+  isManuallyAddedToShoppingList?: boolean;
   quantityUnit: QuantityUnit;
   weight?: number;
   weightUnit?: WeightUnit;
