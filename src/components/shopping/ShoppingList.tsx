@@ -4,24 +4,30 @@ import "./ShoppingList.css";
 type ShoppingListProps = {
   groceries: GroceryItem[];
   onMarkPurchased: (groceryId: string) => void;
+  onChangeShoppingQuantity: (
+    groceryId: string,
+    amount: number,
+  ) => void;
 };
 
 function ShoppingList({
   groceries,
   onMarkPurchased,
+  onChangeShoppingQuantity,
 }: ShoppingListProps) {
   const shoppingItems = groceries
     .map((grocery) => {
       const preferredQuantity =
         grocery.preferredQuantity ?? grocery.quantity;
 
-      const quantityNeeded = Math.max(
+      const automaticQuantityNeeded = Math.max(
         preferredQuantity - grocery.quantity,
         0,
       );
 
       const purchaseQuantity =
-        quantityNeeded > 0 ? quantityNeeded : 1;
+        grocery.shoppingQuantity ??
+        Math.max(automaticQuantityNeeded, 1);
 
       const estimatedCost =
         grocery.price !== undefined
@@ -31,13 +37,14 @@ function ShoppingList({
       return {
         grocery,
         preferredQuantity,
-        quantityNeeded,
+        automaticQuantityNeeded,
+        purchaseQuantity,
         estimatedCost,
       };
     })
     .filter(
-      ({ grocery, quantityNeeded }) =>
-        quantityNeeded > 0 ||
+      ({ grocery, automaticQuantityNeeded }) =>
+        automaticQuantityNeeded > 0 ||
         grocery.isManuallyAddedToShoppingList === true,
     );
 
@@ -68,7 +75,7 @@ function ShoppingList({
             {shoppingItems.length === 1
               ? "item"
               : "items"}{" "}
-            to restock
+            on your list
           </p>
 
           <p>
@@ -99,7 +106,8 @@ function ShoppingList({
             ({
               grocery,
               preferredQuantity,
-              quantityNeeded,
+              automaticQuantityNeeded,
+              purchaseQuantity,
               estimatedCost,
             }) => (
               <article
@@ -116,8 +124,8 @@ function ShoppingList({
                   </div>
 
                   <span className="shopping-item__need">
-                    {quantityNeeded > 0
-                      ? `Need ${quantityNeeded}`
+                    {automaticQuantityNeeded > 0
+                      ? `Suggested ${automaticQuantityNeeded}`
                       : "Manually Added"}
                   </span>
                 </div>
@@ -135,6 +143,36 @@ function ShoppingList({
                     <dd>
                       {preferredQuantity} {grocery.quantityUnit}
                     </dd>
+                  </div>
+
+                  <div className="shopping-item__quantity">
+                    <span>Buy</span>
+
+                    <div className="shopping-quantity-controls">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onChangeShoppingQuantity(grocery.id, -1)
+                        }
+                        aria-label={`Decrease ${grocery.name} shopping quantity`}
+                      >
+                        −
+                      </button>
+
+                      <strong>
+                        {purchaseQuantity} {grocery.quantityUnit}
+                      </strong>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onChangeShoppingQuantity(grocery.id, 1)
+                        }
+                        aria-label={`Increase ${grocery.name} shopping quantity`}
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
 
                   <div>

@@ -227,14 +227,20 @@ function App() {
 
         const preferredQuantity =
           grocery.preferredQuantity ?? grocery.quantity;
-        const isBelowPreferred = grocery.quantity < preferredQuantity;
+        const automaticQuantityNeeded = Math.max(
+          preferredQuantity - grocery.quantity,
+          0,
+        );
+
+        const purchaseQuantity =
+          grocery.shoppingQuantity ??
+          Math.max(automaticQuantityNeeded, 1);
 
         return {
           ...grocery,
-          quantity: isBelowPreferred
-            ? preferredQuantity
-            : grocery.quantity + 1,
+          quantity: grocery.quantity + purchaseQuantity,
           isManuallyAddedToShoppingList: false,
+          shoppingQuantity: undefined,
         };
       }),
     );
@@ -244,13 +250,64 @@ function App() {
     setGroceries((currentGroceries) =>
       currentGroceries.map((grocery) =>
         grocery.id === groceryId
-          ? {
-              ...grocery,
-              isManuallyAddedToShoppingList:
-                !grocery.isManuallyAddedToShoppingList,
-            }
+          ? (() => {
+              const preferredQuantity =
+                grocery.preferredQuantity ?? grocery.quantity;
+
+              const automaticQuantityNeeded = Math.max(
+                preferredQuantity - grocery.quantity,
+                0,
+              );
+
+              const willBeAdded =
+                !grocery.isManuallyAddedToShoppingList;
+
+              return {
+                ...grocery,
+                isManuallyAddedToShoppingList: willBeAdded,
+                shoppingQuantity: willBeAdded
+                  ? Math.max(
+                      grocery.shoppingQuantity ??
+                        automaticQuantityNeeded,
+                      1,
+                    )
+                  : undefined,
+              };
+            })()
           : grocery,
       ),
+    );
+  }
+
+  function handleChangeShoppingQuantity(
+    groceryId: string,
+    amount: number,
+  ) {
+    setGroceries((currentGroceries) =>
+      currentGroceries.map((grocery) => {
+        if (grocery.id !== groceryId) {
+          return grocery;
+        }
+
+        const preferredQuantity =
+          grocery.preferredQuantity ?? grocery.quantity;
+
+        const automaticQuantityNeeded = Math.max(
+          preferredQuantity - grocery.quantity,
+          1,
+        );
+
+        const currentShoppingQuantity =
+          grocery.shoppingQuantity ?? automaticQuantityNeeded;
+
+        return {
+          ...grocery,
+          shoppingQuantity: Math.max(
+            currentShoppingQuantity + amount,
+            1,
+          ),
+        };
+      }),
     );
   }
 
@@ -338,6 +395,7 @@ function App() {
         <ShoppingList
           groceries={groceries}
           onMarkPurchased={handleMarkPurchased}
+          onChangeShoppingQuantity={handleChangeShoppingQuantity}
         />
 
         <InventoryFilters
