@@ -1,0 +1,187 @@
+@import "./SpritePicker.css";
+
+.add-grocery-panel {
+  width: min(100%, 900px);
+  margin: 0 auto 2rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 2px solid #8b6847;
+  border-radius: 28px;
+  background: rgba(255, 249, 232, 0.96);
+  box-shadow: 0 18px 45px rgba(67, 43, 24, 0.2);
+}
+
+.add-grocery-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(91, 59, 35, 0.25);
+}
+
+.add-grocery-panel__eyebrow {
+  margin: 0 0 0.3rem;
+  color: #805e40;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.add-grocery-panel h2 {
+  margin: 0;
+  color: #432b1e;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+}
+
+.add-grocery-panel__close {
+  display: grid;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid #9a7755;
+  border-radius: 50%;
+  background: #f4e3c1;
+  color: #563824;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.add-grocery-panel__close:hover {
+  background: #ead1a5;
+}
+
+.add-grocery-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.form-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field--wide {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  color: #513824;
+  font-weight: 700;
+}
+
+.form-field label span {
+  color: #82684f;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #a88865;
+  border-radius: 12px;
+  background: #fffdf6;
+  color: #38271d;
+  font: inherit;
+}
+
+.form-field input {
+  padding: 0.7rem 0.8rem;
+}
+
+.form-field select {
+  padding: 0.7rem 0.8rem;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: 3px solid rgba(170, 126, 77, 0.28);
+  outline-offset: 2px;
+  border-color: #755033;
+}
+
+.form-field select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.form-field__help {
+  margin: 0;
+  color: #765e48;
+  font-size: 0.82rem;
+}
+
+.add-grocery-form__error {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid #a65245;
+  border-radius: 12px;
+  background: #fbe8e3;
+  color: #713329;
+  font-weight: 700;
+}
+
+.add-grocery-form__actions {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.button {
+  min-height: 46px;
+  padding: 0.75rem 1.1rem;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button--primary {
+  border: 1px solid #68462f;
+  background: #68462f;
+  color: #ffffff;
+}
+
+.button--primary:hover {
+  background: #4d3221;
+}
+
+.button--secondary {
+  border: 1px solid #927050;
+  background: #f8ead0;
+  color: #4c3423;
+}
+
+.button--secondary:hover {
+  background: #ecd7b3;
+}
+
+@media (max-width: 650px) {
+  .add-grocery-form {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field--wide,
+  .add-grocery-form__error,
+  .add-grocery-form__actions {
+    grid-column: auto;
+  }
+
+  .add-grocery-form__actions {
+    flex-direction: column-reverse;
+  }
+
+  .button {
+    width: 100%;
+  }
+}

@@ -69,6 +69,7 @@ export type GroceryItem = {
   name: string;
   category: GroceryCategory;
   quantity: number;
+  preferredQuantity?: number;
   quantityUnit: QuantityUnit;
   weight?: number;
   weightUnit?: WeightUnit;

@@ -1,0 +1,86 @@
+.sprite-picker {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sprite-picker legend {
+  margin-bottom: 0.65rem;
+  color: #513824;
+  font-weight: 700;
+}
+
+.sprite-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+  gap: 0.75rem;
+}
+
+.sprite-picker__option {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0.4rem;
+  min-height: 130px;
+  padding: 0.75rem;
+  border: 2px solid #b89a75;
+  border-radius: 16px;
+  background: #fffaf0;
+  color: #4b3323;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.sprite-picker__option:hover {
+  transform: translateY(-3px);
+  border-color: #785034;
+  background: #f8e9ca;
+}
+
+.sprite-picker__option:focus-visible {
+  outline: 3px solid #c69b68;
+  outline-offset: 3px;
+}
+
+.sprite-picker__option--selected {
+  border-color: #65412b;
+  background: #f2d9aa;
+  box-shadow:
+    0 0 0 3px rgba(101, 65, 43, 0.15),
+    0 10px 22px rgba(77, 48, 29, 0.15);
+}
+
+.sprite-picker__image {
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.sprite-picker__name {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.sprite-picker__check {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: #65412b;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}

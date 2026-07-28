@@ -1,27 +1,17 @@
 import type { GroceryItem } from "../../types/grocery";
+import { spriteCatalog } from "../../data/spriteCatalog";
+import { getExpirationDetails } from "../../utils/expiration";
+import ShinyText from "../texts/ShinyText";
 import "./GroceryCard.css";
 
 type GroceryCardProps = {
   item: GroceryItem;
   cardNumber: number;
   totalCards: number;
+  onIncreaseQuantity: (groceryId: string) => void;
+  onDecreaseQuantity: (groceryId: string) => void;
+  onEditGrocery: (grocery: GroceryItem) => void;
 };
-
-const spriteFallbacks: Record<string, string> = {
-  strawberry: "fruit_strawberry.png",
-  milk: "coffee_milkjug.png",
-  bread: "breadloaf.png",
-  apple: "fruit_apple.png",
-  banana: "fruit_banana.png",
-  egg: "eggs_brown.png",
-  cheese: "cheese_camembert.png",
-  tomato: "vegetable_tomato.png",
-};
-
-const spriteImages = import.meta.glob("../../assets/food sprites/*.png", {
-  eager: true,
-  import: "default",
-}) as Record<string, string>;
 
 function formatPrice(price?: number) {
   if (price === undefined) {
@@ -36,7 +26,7 @@ function formatPrice(price?: number) {
 
 function formatExpirationDate(expirationDate?: string) {
   if (!expirationDate) {
-    return "No date added";
+    return "No Expiration Date";
   }
 
   const date = new Date(`${expirationDate}T00:00:00`);
@@ -52,11 +42,36 @@ function GroceryCard({
   item,
   cardNumber,
   totalCards,
+  onIncreaseQuantity,
+  onDecreaseQuantity,
+  onEditGrocery,
 }: GroceryCardProps) {
-  const spriteFileName = spriteFallbacks[item.spriteId];
-  const spriteSrc = spriteFileName
-    ? spriteImages[`../../assets/food sprites/${spriteFileName}`]
-    : undefined;
+  const selectedSprite = spriteCatalog.find(
+    (sprite) => sprite.id === item.spriteId,
+  );
+  const expirationDetails = getExpirationDetails(
+    item.expirationDate,
+  );
+  const preferredQuantity = item.preferredQuantity ?? item.quantity;
+  const safePreferredQuantity = Math.max(preferredQuantity, 1);
+  const normalizedQuantity = Math.min(
+    Math.max(item.quantity, 0),
+    safePreferredQuantity,
+  );
+  const stockPercent = Math.round(
+    Math.min(
+      (normalizedQuantity / safePreferredQuantity) * 100,
+      100,
+    ),
+  );
+  const stockStatus =
+    stockPercent === 0
+      ? "Out of Stock"
+      : stockPercent < 40
+        ? "Running Low"
+        : stockPercent < 75
+          ? "Getting Low"
+          : "Well Stocked";
 
   const weight =
     item.weight !== undefined && item.weightUnit
@@ -64,17 +79,40 @@ function GroceryCard({
       : "Not added";
 
   return (
-    <article className="grocery-card">
+    <article
+      className={`grocery-card grocery-card--${expirationDetails.status}`}
+    >
       <div className="grocery-card__inner">
         <header className="grocery-card__header">
           <div>
             <p className="grocery-card__category">{item.category}</p>
-            <h3 className="grocery-card__name">{item.name}</h3>
+            <h3 className="grocery-card__name">
+              <ShinyText
+                text={item.name}
+                speed={2}
+                delay={0}
+                color="#381a0b"
+                shineColor="#ffffff"
+                spread={120}
+                direction="left"
+                yoyo={false}
+                pauseOnHover={false}
+                disabled={false}
+              />
+            </h3>
           </div>
 
-          <div className="grocery-card__storage">
-            <span>Stored in</span>
-            <strong>{item.storageLocation}</strong>
+          <div className="grocery-card__badges">
+            <span
+              className={`grocery-card__status grocery-card__status--${expirationDetails.status}`}
+            >
+              {expirationDetails.label}
+            </span>
+
+            <div className="grocery-card__storage">
+              <span>Stored in</span>
+              <strong>{item.storageLocation}</strong>
+            </div>
           </div>
         </header>
 
@@ -83,15 +121,14 @@ function GroceryCard({
           role="img"
           aria-label={`${item.name} food sprite`}
         >
-          {spriteSrc ? (
+          {selectedSprite ? (
             <img
               className="grocery-card__sprite"
-              src={spriteSrc}
-              alt=""
-              aria-hidden="true"
+              src={selectedSprite.image}
+              alt={`${item.name} illustration`}
             />
           ) : (
-            <span className="grocery-card__sprite" aria-hidden="true">
+            <span className="grocery-card__fallback" aria-hidden="true">
               🛒
             </span>
           )}
@@ -100,10 +137,31 @@ function GroceryCard({
         </div>
 
         <dl className="grocery-card__details">
-          <div className="grocery-card__detail">
+          <div className="grocery-card__detail grocery-card__detail--quantity">
             <dt>Quantity</dt>
-            <dd>
-              {item.quantity} {item.quantityUnit}
+
+            <dd className="quantity-controls">
+              <button
+                type="button"
+                className="quantity-controls__button"
+                onClick={() => onDecreaseQuantity(item.id)}
+                aria-label={`Decrease ${item.name} quantity`}
+              >
+                −
+              </button>
+
+              <span className="quantity-controls__value">
+                {item.quantity} {item.quantityUnit}
+              </span>
+
+              <button
+                type="button"
+                className="quantity-controls__button"
+                onClick={() => onIncreaseQuantity(item.id)}
+                aria-label={`Increase ${item.name} quantity`}
+              >
+                +
+              </button>
             </dd>
           </div>
 
@@ -114,7 +172,24 @@ function GroceryCard({
 
           <div className="grocery-card__detail">
             <dt>Expiration</dt>
-            <dd>{formatExpirationDate(item.expirationDate)}</dd>
+
+            <dd>
+              <span>{formatExpirationDate(item.expirationDate)}</span>
+
+              {expirationDetails.daysRemaining !== null && (
+                <small className="grocery-card__expiration-message">
+                  {expirationDetails.daysRemaining < 0
+                    ? `${Math.abs(
+                        expirationDetails.daysRemaining,
+                      )} day(s) overdue`
+                    : expirationDetails.daysRemaining === 0
+                      ? "Today"
+                      : expirationDetails.daysRemaining === 1
+                        ? "1 day remaining"
+                        : `${expirationDetails.daysRemaining} days remaining`}
+                </small>
+              )}
+            </dd>
           </div>
 
           <div className="grocery-card__detail">
@@ -122,6 +197,30 @@ function GroceryCard({
             <dd>{formatPrice(item.price)}</dd>
           </div>
         </dl>
+
+        <section className="grocery-card__inventory">
+          <p className="grocery-card__inventory-label">Stock Level</p>
+
+          <div
+            className="grocery-card__meter"
+            role="progressbar"
+            aria-label="Inventory level"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={stockPercent}
+          >
+            <div
+              className="grocery-card__meter-fill"
+              style={{ width: `${stockPercent}%` }}
+            />
+          </div>
+
+          <p className="grocery-card__inventory-meta">
+            {item.quantity} / {safePreferredQuantity} {item.quantityUnit} · {stockPercent}%
+          </p>
+
+          <p className="grocery-card__inventory-status">{stockStatus}</p>
+        </section>
 
         <section className="grocery-card__feature">
           <p className="grocery-card__feature-title">Pantry Record</p>
@@ -131,6 +230,16 @@ function GroceryCard({
             information from your personalized grocery collection.
           </p>
         </section>
+
+        <div className="grocery-card__actions">
+          <button
+            type="button"
+            className="grocery-card__edit-button"
+            onClick={() => onEditGrocery(item)}
+          >
+            Edit Item
+          </button>
+        </div>
 
         <footer className="grocery-card__footer">
           <span>Pantry Keeper Collection</span>
