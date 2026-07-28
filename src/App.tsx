@@ -6,6 +6,7 @@ import InventoryFilters, {
 import AddGroceryForm from "./components/inventory/AddGroceryForm";
 import StockPreferenceModal from "./components/inventory/StockPreferenceModal";
 import PantryDashboard from "./components/dashboard/PantryDashboard";
+import ShoppingList from "./components/shopping/ShoppingList";
 import { sampleGroceries } from "./data/sampleGroceries";
 import PixelBlast from "./components/backgrounds/PixelBlast";
 import { useEffect, useMemo, useState } from "react";
@@ -217,6 +218,24 @@ function App() {
     setGroceryToPersonalize(null);
   }
 
+  function handleMarkPurchased(groceryId: string) {
+    setGroceries((currentGroceries) =>
+      currentGroceries.map((grocery) => {
+        if (grocery.id !== groceryId) {
+          return grocery;
+        }
+
+        const preferredQuantity =
+          grocery.preferredQuantity ?? grocery.quantity;
+
+        return {
+          ...grocery,
+          quantity: preferredQuantity,
+        };
+      }),
+    );
+  }
+
   function handleClearFilters() {
     setSearchQuery("");
     setCategoryFilter("all");
@@ -297,6 +316,11 @@ function App() {
         )}
 
         <PantryDashboard groceries={groceries} />
+
+        <ShoppingList
+          groceries={groceries}
+          onMarkPurchased={handleMarkPurchased}
+        />
 
         <InventoryFilters
           searchQuery={searchQuery}
