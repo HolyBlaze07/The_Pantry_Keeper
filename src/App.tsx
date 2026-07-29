@@ -7,6 +7,7 @@ import AddGroceryForm from "./components/inventory/AddGroceryForm";
 import StockPreferenceModal from "./components/inventory/StockPreferenceModal";
 import PantryDashboard from "./components/dashboard/PantryDashboard";
 import ShoppingList from "./components/shopping/ShoppingList";
+import RecipeSuggestions from "./components/recipes/RecipeSuggestions";
 import ConfirmModal from "./components/ui/ConfirmModal";
 import { sampleGroceries } from "./data/sampleGroceries";
 import PixelBlast from "./components/backgrounds/PixelBlast";
@@ -477,6 +478,8 @@ function App() {
           onMarkPurchased={handleMarkPurchased}
           onChangeShoppingQuantity={handleChangeShoppingQuantity}
         />
+
+        <RecipeSuggestions groceries={groceries} />
 
         <InventoryFilters
           searchQuery={searchQuery}
