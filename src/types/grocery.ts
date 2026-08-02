@@ -36,6 +36,7 @@ export type QuantityUnit =
   | "bottles"
   | "carton"
   | "cartons"
+  | "container"
   | "jar"
   | "jars"
   |"bunch"
@@ -64,9 +65,48 @@ export type WeightUnit =
   | "fl oz"
   | "gal";
 
+export type GroceryTag =
+  | "organic"
+  | "non-gmo"
+  | "gluten-free"
+  | "soy-free"
+  | "natural"
+  | "pasture-raised"
+  | "allergn"
+  | "soy";
+
+export type GroceryTagOption = {
+  id: GroceryTag;
+  label: string;
+};
+
+export const GROCERY_TAG_OPTIONS: readonly GroceryTagOption[] = [
+  { id: "organic", label: "Organic" },
+  { id: "non-gmo", label: "Non-GMO" },
+  { id: "gluten-free", label: "Gluten Free" },
+  { id: "soy-free", label: "Soy Free" },
+  { id: "natural", label: "Natural" },
+  { id: "pasture-raised", label: "Pasture-Raised" },
+  { id: "allergn", label: "Allergn" },
+  { id: "soy", label: "Soy" },
+] as const;
+
+export type GroceryUsageEntry = {
+  amountUsed: number;
+  recordedAt: string;
+  previousQuantity?: number;
+  previousShoppingQuantity?: number;
+  previousIsManuallyAddedToShoppingList?: boolean;
+  source?: "report-usage" | "mark-finished";
+};
+
 export type GroceryItem = {
   id: string;
   name: string;
+  brandName?: string;
+  storeName?: string;
+  organic?: boolean;
+  tags?: GroceryTag[];
   category: GroceryCategory;
   quantity: number;
   preferredQuantity?: number;
@@ -80,4 +120,5 @@ export type GroceryItem = {
   spriteId: string;
   storageLocation: StorageLocation;
   dateAdded: string;
+  usageHistory?: GroceryUsageEntry[];
 };

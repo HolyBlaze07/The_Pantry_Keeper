@@ -13,6 +13,10 @@ The Pantry Keeper is a grocery inventory application that helps users track food
 - Editable shopping quantities
 - Estimated shopping costs
 - Local storage persistence
+- Pantry-based recipe suggestions
+- AI-assisted recipe generation
+- Local recipe fallback
+- Expiring-food prioritization
 - Responsive interface
 
 ## Built With
@@ -48,10 +52,12 @@ The Pantry Keeper combines inventory tracking, expiration awareness, personalize
 - Testing
 
 ### Future Improvements
+- Saved favorite recipes
+- Dietary preferences
+- Add missing recipe ingredients to shopping list
+- Meal planning calendar
 - Cloud accounts and synchronization
 - Barcode scanning
 - Receipt importing
-- Recipe suggestions
-- Meal planning
 - Inventory history
 - Interactive 3D pantry book

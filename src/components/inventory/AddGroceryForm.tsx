@@ -2,11 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import type {
   GroceryCategory,
   GroceryItem,
+  GroceryTag,
   QuantityUnit,
   StorageLocation,
   WeightUnit,
 } from "../../types/grocery";
+import { GROCERY_TAG_OPTIONS } from "../../types/grocery";
 import SpritePicker from "./SpritePicker";
+import { suggestSpriteIdForGrocery } from "../../utils/spriteMatcher";
+import { parseExpirationDate } from "../../utils/expiration";
 import "./SpritePicker.css";
 import "./AddGroceryForm.css";
 
@@ -41,12 +45,15 @@ const quantityUnits: QuantityUnit[] = [
   "bags",
   "box",
   "boxes",
+  "bunch",
+  "bunches",
   "can",
   "cans",
   "bottle",
   "bottles",
   "carton",
   "cartons",
+  "container",
   "jar",
   "jars",
   "bunch",
@@ -76,6 +83,21 @@ const storageLocations: StorageLocation[] = [
   "Cabinet",
 ];
 
+function getInitialTags(groceryToEdit?: GroceryItem | null): GroceryTag[] {
+  const initialTags = new Set<GroceryTag>(groceryToEdit?.tags ?? []);
+
+  if (
+    groceryToEdit?.organic ||
+    /^organic\b/i.test(groceryToEdit?.name ?? "")
+  ) {
+    initialTags.add("organic");
+  }
+
+  return GROCERY_TAG_OPTIONS.filter(({ id }) => initialTags.has(id)).map(
+    ({ id }) => id,
+  );
+}
+
 function AddGroceryForm({
   onSaveGrocery,
   onClose,
@@ -83,6 +105,15 @@ function AddGroceryForm({
 }: AddGroceryFormProps) {
   const dialogRef = useRef<HTMLElement | null>(null);
   const [name, setName] = useState(groceryToEdit?.name ?? "");
+  const [brandName, setBrandName] = useState(
+    groceryToEdit?.brandName ?? "",
+  );
+  const [storeName, setStoreName] = useState(
+    groceryToEdit?.storeName ?? "",
+  );
+  const [selectedTags, setSelectedTags] = useState<GroceryTag[]>(
+    getInitialTags(groceryToEdit),
+  );
   const [category, setCategory] = useState<GroceryCategory>(
     groceryToEdit?.category ?? "Fruit",
   );
@@ -100,13 +131,18 @@ function AddGroceryForm({
     groceryToEdit?.expirationDate ?? "",
   );
   const [price, setPrice] = useState(groceryToEdit?.price?.toString() ?? "");
-  const [spriteId, setSpriteId] = useState(
-    groceryToEdit?.spriteId ?? "strawberry",
+  const [manualSpriteId, setManualSpriteId] = useState<string | null>(
+    groceryToEdit?.spriteId ?? null,
   );
   const [storageLocation, setStorageLocation] = useState<StorageLocation>(
     groceryToEdit?.storageLocation ?? "Pantry",
   );
   const [error, setError] = useState("");
+  const suggestedSpriteId = suggestSpriteIdForGrocery({
+    name,
+    category,
+  });
+  const selectedSpriteId = manualSpriteId ?? suggestedSpriteId;
 
   useEffect(() => {
     const focusTarget = dialogRef.current?.querySelector<HTMLElement>(
@@ -116,6 +152,16 @@ function AddGroceryForm({
     focusTarget?.focus();
   }, []);
 
+  function handleToggleTag(tagId: GroceryTag) {
+    setSelectedTags((currentTags) => {
+      if (currentTags.includes(tagId)) {
+        return currentTags.filter((existingTag) => existingTag !== tagId);
+      }
+
+      return [...currentTags, tagId];
+    });
+  }
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -124,14 +170,23 @@ function AddGroceryForm({
       return;
     }
 
-    if (quantity < 1) {
-      setError("Quantity must be at least 1.");
+    if (quantity <= 0) {
+      setError("Quantity must be greater than 0.");
+      return;
+    }
+
+    if (expirationDate && !parseExpirationDate(expirationDate)) {
+      setError("Please enter a valid expiration date in YYYY-MM-DD format.");
       return;
     }
 
     const savedGrocery: GroceryItem = {
       id: groceryToEdit?.id ?? crypto.randomUUID(),
       name: name.trim(),
+      brandName: brandName.trim() || undefined,
+      storeName: storeName.trim() || undefined,
+      organic: selectedTags.includes("organic"),
+      tags: selectedTags,
       category,
       quantity,
       preferredQuantity: groceryToEdit?.preferredQuantity ?? quantity,
@@ -140,8 +195,12 @@ function AddGroceryForm({
       weightUnit: weight ? weightUnit : undefined,
       expirationDate: expirationDate || undefined,
       price: price ? Number(price) : undefined,
-      spriteId,
+      spriteId: selectedSpriteId,
       storageLocation,
+      isManuallyAddedToShoppingList:
+        groceryToEdit?.isManuallyAddedToShoppingList,
+      shoppingQuantity: groceryToEdit?.shoppingQuantity,
+      usageHistory: groceryToEdit?.usageHistory,
       dateAdded:
         groceryToEdit?.dateAdded ??
         new Date().toISOString().split("T")[0],
@@ -203,6 +262,34 @@ function AddGroceryForm({
         </div>
 
         <div className="form-field">
+          <label htmlFor="grocery-brand">
+            Brand name <span>(optional)</span>
+          </label>
+
+          <input
+            id="grocery-brand"
+            type="text"
+            value={brandName}
+            onChange={(event) => setBrandName(event.target.value)}
+            placeholder="Example: Simply Nature"
+          />
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="grocery-store">
+            Grocery store <span>(optional)</span>
+          </label>
+
+          <input
+            id="grocery-store"
+            type="text"
+            value={storeName}
+            onChange={(event) => setStoreName(event.target.value)}
+            placeholder="Example: Aldi"
+          />
+        </div>
+
+        <div className="form-field">
           <label htmlFor="grocery-category">Category</label>
 
           <select
@@ -240,8 +327,8 @@ function AddGroceryForm({
           <input
             id="grocery-quantity"
             type="number"
-            min="1"
-            step="1"
+            min="0.01"
+            step="0.01"
             value={quantity}
             onChange={(event) => setQuantity(Number(event.target.value))}
           />
@@ -305,7 +392,10 @@ function AddGroceryForm({
             id="expiration-date"
             type="date"
             value={expirationDate}
-            onChange={(event) => setExpirationDate(event.target.value)}
+            onChange={(event) => {
+              setExpirationDate(event.target.value);
+              setError("");
+            }}
           />
         </div>
 
@@ -325,7 +415,29 @@ function AddGroceryForm({
           />
         </div>
 
-          <SpritePicker selectedSpriteId={spriteId} onSelectSprite={setSpriteId} />
+        <fieldset className="form-field form-field--wide form-tags" aria-label="Item tags">
+          <legend>Tags</legend>
+
+          <div className="form-tags__grid">
+            {GROCERY_TAG_OPTIONS.map((tagOption) => (
+              <label key={tagOption.id} className="form-tags__option">
+                <input
+                  type="checkbox"
+                  checked={selectedTags.includes(tagOption.id)}
+                  onChange={() => handleToggleTag(tagOption.id)}
+                />
+                <span>{tagOption.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+          <SpritePicker
+            selectedSpriteId={selectedSpriteId}
+            onSelectSprite={(nextSpriteId) => {
+              setManualSpriteId(nextSpriteId);
+            }}
+          />
 
           <div className="add-grocery-form__actions">
             <button type="button" className="button button--secondary" onClick={onClose}>

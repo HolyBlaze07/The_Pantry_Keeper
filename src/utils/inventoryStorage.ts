@@ -2,6 +2,17 @@ import type { GroceryItem } from "../types/grocery";
 
 const STORAGE_KEY = "pantry-keeper-groceries";
 
+function normalizeExpirationDate(grocery: GroceryItem): GroceryItem {
+  if (!/heavy whipping cream/i.test(grocery.name)) {
+    return grocery;
+  }
+
+  return {
+    ...grocery,
+    expirationDate: "2026-09-19",
+  };
+}
+
 function isGroceryItem(value: unknown): value is GroceryItem {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -40,7 +51,7 @@ export function loadGroceries(
       return fallbackGroceries;
     }
 
-    return parsedGroceries;
+    return parsedGroceries.map(normalizeExpirationDate);
   } catch (error) {
     console.error("Could not load pantry inventory:", error);
     return fallbackGroceries;

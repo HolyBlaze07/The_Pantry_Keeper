@@ -1,5 +1,6 @@
 import { spriteCatalog } from "../../data/spriteCatalog";
 import "./SpritePicker.css";
+import { NO_SPRITE_ID } from "../../utils/spriteMatcher";
 
 type SpritePickerProps = {
   selectedSpriteId: string;
@@ -12,6 +13,24 @@ function SpritePicker({ selectedSpriteId, onSelectSprite }: SpritePickerProps) {
       <legend>Choose a food sprite</legend>
 
       <div className="sprite-picker__grid">
+        <button
+          type="button"
+          className={`sprite-picker__option sprite-picker__option--none ${
+            selectedSpriteId === NO_SPRITE_ID ? "sprite-picker__option--selected" : ""
+          }`}
+          onClick={() => onSelectSprite(NO_SPRITE_ID)}
+          aria-pressed={selectedSpriteId === NO_SPRITE_ID}
+          aria-label="Choose no sprite"
+        >
+          <span className="sprite-picker__none-label">None</span>
+
+          {selectedSpriteId === NO_SPRITE_ID && (
+            <span className="sprite-picker__check" aria-hidden="true">
+              ✓
+            </span>
+          )}
+        </button>
+
         {spriteCatalog.map((sprite) => {
           const isSelected = sprite.id === selectedSpriteId;
 

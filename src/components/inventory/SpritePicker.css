@@ -38,6 +38,10 @@
     box-shadow 160ms ease;
 }
 
+.sprite-picker__option--none {
+  background: linear-gradient(180deg, #fbf4e7 0%, #f7ebd6 100%);
+}
+
 .sprite-picker__option:hover {
   transform: translateY(-3px);
   border-color: #785034;
@@ -68,6 +72,14 @@
 .sprite-picker__name {
   font-size: 0.85rem;
   font-weight: 700;
+}
+
+.sprite-picker__none-label {
+  color: #6a4a32;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .sprite-picker__check {

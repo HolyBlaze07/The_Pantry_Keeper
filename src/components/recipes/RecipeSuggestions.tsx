@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GroceryItem } from "../../types/grocery";
 import type { SuggestedRecipe } from "../../types/recipe";
+import { localRecipes } from "../../data/recipes";
 import { getExpirationDetails } from "../../utils/expiration";
 import "./RecipeSuggestions.css";
 
@@ -12,10 +13,67 @@ function RecipeSuggestions({
   groceries,
 }: RecipeSuggestionsProps) {
   const [recipes, setRecipes] = useState<SuggestedRecipe[]>([]);
+  const [recipeSource, setRecipeSource] = useState<"ai" | "local" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [hasRequested, setHasRequested] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  function getLocalRecipeSuggestions(
+    pantryGroceries: GroceryItem[],
+  ): SuggestedRecipe[] {
+    const inventoryNames = pantryGroceries.map((grocery) =>
+      grocery.name.toLowerCase(),
+    );
+
+    return localRecipes
+      .map((recipe) => {
+        const inventoryIngredients = recipe.requiredIngredients.filter(
+          (ingredient) =>
+            inventoryNames.some((inventoryName) =>
+              inventoryName.includes(ingredient),
+            ),
+        );
+
+        const missingIngredients = recipe.requiredIngredients.filter(
+          (ingredient) =>
+            !inventoryNames.some((inventoryName) =>
+              inventoryName.includes(ingredient),
+            ),
+        );
+
+        const matchPercentage =
+          inventoryIngredients.length / recipe.requiredIngredients.length;
+
+        return {
+          id: recipe.id,
+          title: recipe.title,
+          description: recipe.description,
+          inventoryIngredients,
+          missingIngredients,
+          instructions: recipe.instructions,
+          prepTime: recipe.prepTime,
+          cookTime: recipe.cookTime,
+          matchPercentage,
+        };
+      })
+      .filter((recipe) => recipe.matchPercentage >= 0.5)
+      .sort(
+        (firstRecipe, secondRecipe) =>
+          secondRecipe.matchPercentage - firstRecipe.matchPercentage,
+      )
+      .slice(0, 3)
+      .map((recipe) => ({
+        id: recipe.id,
+        title: recipe.title,
+        description: recipe.description,
+        inventoryIngredients: recipe.inventoryIngredients,
+        missingIngredients: recipe.missingIngredients,
+        instructions: recipe.instructions,
+        prepTime: recipe.prepTime,
+        cookTime: recipe.cookTime,
+      }));
+  }
 
   const usableGroceries = useMemo(
     () =>
@@ -41,6 +99,7 @@ function RecipeSuggestions({
 
     if (groceries.length === 0) {
       setRecipes([]);
+      setRecipeSource(null);
       setError("Add groceries before requesting recipes.");
       setHasRequested(true);
       return;
@@ -48,6 +107,7 @@ function RecipeSuggestions({
 
     if (usableGroceries.length === 0) {
       setRecipes([]);
+      setRecipeSource(null);
       setError("All groceries are expired. Add fresh groceries first.");
       setHasRequested(true);
       return;
@@ -59,6 +119,7 @@ function RecipeSuggestions({
 
     setIsLoading(true);
     setRecipes([]);
+    setRecipeSource(null);
     setError("");
     setHasRequested(true);
 
@@ -94,6 +155,7 @@ function RecipeSuggestions({
       }
 
       setRecipes(data.recipes);
+      setRecipeSource("ai");
     } catch (requestError) {
       if (
         requestError instanceof DOMException &&
@@ -104,9 +166,21 @@ function RecipeSuggestions({
 
       console.error(requestError);
 
-      setError(
-        "Recipe suggestions are unavailable right now.",
-      );
+      const fallbackRecipes = getLocalRecipeSuggestions(usableGroceries);
+
+      if (fallbackRecipes.length > 0) {
+        setRecipes(fallbackRecipes);
+        setRecipeSource("local");
+        setError(
+          "AI suggestions are paused, so Pantry Keeper is using local recipe matches.",
+        );
+      } else {
+        setRecipes([]);
+        setRecipeSource(null);
+        setError(
+          "AI recipe suggestions are temporarily unavailable. Add more groceries for local matches.",
+        );
+      }
     } finally {
       if (abortControllerRef.current === controller) {
         setIsLoading(false);
@@ -175,6 +249,18 @@ function RecipeSuggestions({
 
       {!isLoading && recipes.length > 0 && (
         <>
+          {recipeSource === "ai" && (
+            <p className="recipe-suggestions__source">
+              AI-assisted pantry suggestions
+            </p>
+          )}
+
+          {recipeSource === "local" && (
+            <p className="recipe-suggestions__source">
+              Pantry-matched recipe suggestions
+            </p>
+          )}
+
           <p className="recipe-suggestions__count">
             {recipes.length} {recipes.length === 1 ? "Recipe" : "Recipes"} Found
           </p>

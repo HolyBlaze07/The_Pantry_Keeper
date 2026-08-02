@@ -85,6 +85,84 @@
   gap: 0.4rem;
 }
 
+.form-field--checkbox {
+  justify-content: flex-end;
+}
+
+.form-field__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 46px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #a88865;
+  border-radius: 12px;
+  background: #fffdf6;
+  color: #38271d;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form-field__checkbox input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: #68462f;
+}
+
+.form-field__checkbox:focus-within {
+  outline: 3px solid rgba(170, 126, 77, 0.28);
+  outline-offset: 2px;
+  border-color: #755033;
+}
+
+.form-tags {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.form-tags legend {
+  margin-bottom: 0.5rem;
+  color: #513824;
+  font-weight: 700;
+}
+
+.form-tags__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.form-tags__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 42px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #a88865;
+  border-radius: 12px;
+  background: #fffdf6;
+  color: #38271d;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form-tags__option input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: #68462f;
+}
+
+.form-tags__option:focus-within {
+  outline: 3px solid rgba(170, 126, 77, 0.28);
+  outline-offset: 2px;
+  border-color: #755033;
+}
+
 .form-field--wide {
   grid-column: 1 / -1;
 }
@@ -202,6 +280,10 @@
 
   .add-grocery-form__actions {
     flex-direction: column-reverse;
+  }
+
+  .form-tags__grid {
+    grid-template-columns: 1fr;
   }
 
   .button {

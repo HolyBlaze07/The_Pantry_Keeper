@@ -11,6 +11,36 @@ export type ExpirationDetails = {
   daysRemaining: number | null;
 };
 
+export function parseExpirationDate(dateString?: string): Date | null {
+  if (!dateString) {
+    return null;
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString);
+
+  if (!match) {
+    return null;
+  }
+
+  const [, yearText, monthText, dayText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+
+  if (year < 2000 || year > 2100) {
+    return null;
+  }
+
+  const date = new Date(year, month - 1, day);
+
+  const isValid =
+    date.getFullYear() === year &&
+    date.getMonth() === month - 1 &&
+    date.getDate() === day;
+
+  return isValid ? date : null;
+}
+
 export function getExpirationDetails(
   expirationDate?: string,
 ): ExpirationDetails {
@@ -23,7 +53,15 @@ export function getExpirationDetails(
   }
 
   const today = new Date();
-  const expiration = new Date(`${expirationDate}T00:00:00`);
+  const expiration = parseExpirationDate(expirationDate);
+
+  if (!expiration) {
+    return {
+      status: "no-date",
+      label: "No Expiration Date",
+      daysRemaining: null,
+    };
+  }
 
   today.setHours(0, 0, 0, 0);
   expiration.setHours(0, 0, 0, 0);

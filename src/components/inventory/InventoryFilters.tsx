@@ -1,4 +1,5 @@
 import type { ChangeEvent } from "react";
+import { GROCERY_TAG_OPTIONS } from "../../types/grocery";
 import "./InventoryFilters.css";
 
 export type InventorySort =
@@ -11,6 +12,7 @@ export type InventorySort =
 type InventoryFiltersProps = {
   searchQuery: string;
   categoryFilter: string;
+  tagFilter: string;
   locationFilter: string;
   statusFilter: string;
   sortBy: InventorySort;
@@ -19,6 +21,7 @@ type InventoryFiltersProps = {
   resultCount: number;
   onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
+  onTagChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onSortChange: (value: InventorySort) => void;
@@ -28,6 +31,7 @@ type InventoryFiltersProps = {
 function InventoryFilters({
   searchQuery,
   categoryFilter,
+  tagFilter,
   locationFilter,
   statusFilter,
   sortBy,
@@ -36,6 +40,7 @@ function InventoryFilters({
   resultCount,
   onSearchChange,
   onCategoryChange,
+  onTagChange,
   onLocationChange,
   onStatusChange,
   onSortChange,
@@ -44,6 +49,7 @@ function InventoryFilters({
   const filtersAreActive =
     searchQuery !== "" ||
     categoryFilter !== "all" ||
+    tagFilter !== "all" ||
     locationFilter !== "all" ||
     statusFilter !== "all";
 
@@ -108,6 +114,24 @@ function InventoryFilters({
             {locations.map((location) => (
               <option key={location} value={location}>
                 {location}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="inventory-filter">
+          <label htmlFor="tag-filter">Tag</label>
+
+          <select
+            id="tag-filter"
+            value={tagFilter}
+            onChange={(event) => onTagChange(event.target.value)}
+          >
+            <option value="all">All Tags</option>
+
+            {GROCERY_TAG_OPTIONS.map((tagOption) => (
+              <option key={tagOption.id} value={tagOption.id}>
+                {tagOption.label}
               </option>
             ))}
           </select>
