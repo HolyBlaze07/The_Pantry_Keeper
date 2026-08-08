@@ -417,6 +417,22 @@
   transform: translateY(-4px);
 }
 
+@media (min-width: 701px) and (max-width: 1100px) {
+  .app {
+    width: min(100% - 1.5rem, 1400px);
+    padding-top: 2.5rem;
+  }
+
+  .collection {
+    padding: 1.1rem;
+  }
+
+  .collection-location-group__grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 1rem;
+  }
+}
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -460,6 +476,25 @@
   }
 
   .grocery-card__actions {
+    flex-wrap: wrap;
+  }
+
+  .app-settings {
+    padding: 0.9rem;
+  }
+
+  .app-settings > button {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .collection__total {
+    align-self: flex-start;
+  }
+
+  .collection-location-group__toggle {
+    align-items: flex-start;
+    gap: 0.2rem;
     flex-wrap: wrap;
   }
 

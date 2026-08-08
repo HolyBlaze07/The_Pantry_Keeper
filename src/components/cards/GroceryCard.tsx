@@ -461,6 +461,10 @@ function GroceryCard({
   }, []);
 
   function handlePointerMove(event: PointerEvent<HTMLElement>) {
+    if (!window.matchMedia("(pointer: fine)").matches) {
+      return;
+    }
+
     const rect = event.currentTarget.getBoundingClientRect();
     const halfWidth = rect.width / 2;
     const halfHeight = rect.height / 2;
@@ -482,6 +486,10 @@ function GroceryCard({
   }
 
   function handlePointerLeave() {
+    if (!window.matchMedia("(pointer: fine)").matches) {
+      return;
+    }
+
     targetRotateXRef.current = 0;
     targetRotateYRef.current = 0;
     targetRatioXRef.current = 0;

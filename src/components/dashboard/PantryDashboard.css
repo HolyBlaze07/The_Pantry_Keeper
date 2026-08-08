@@ -102,6 +102,24 @@
   background: #f6e1ce;
 }
 
+@media (max-width: 1024px) {
+  .pantry-dashboard__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .pantry-dashboard__summary {
+    max-width: 100%;
+    text-align: left;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 1024px) {
+  .pantry-dashboard__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 700px) {
   .pantry-dashboard__heading {
     align-items: flex-start;

@@ -11,6 +11,9 @@
     "sprites:transparent": "node scripts/make-sprites-transparent.mjs"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@vercel/speed-insights": "^2.0.0",
     "motion": "^12.42.2",
     "ogl": "^1.0.11",
     "openai": "^7.1.0",
