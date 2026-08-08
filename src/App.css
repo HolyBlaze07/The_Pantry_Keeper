@@ -367,6 +367,47 @@
   outline-offset: 2px;
 }
 
+.back-to-top-button {
+  position: fixed;
+  right: clamp(0.9rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3.5vw, 2.2rem);
+  z-index: 25;
+  padding: 0.6rem 0.95rem;
+  border: 1px solid #6d4b34;
+  border-radius: 999px;
+  background: rgba(250, 239, 208, 0.95);
+  color: #4a3122;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(64, 41, 28, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease,
+    visibility 180ms ease,
+    background 160ms ease;
+}
+
+.back-to-top-button.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.back-to-top-button:hover {
+  background: #f0deb4;
+}
+
+.back-to-top-button:focus-visible {
+  outline: 3px solid rgba(126, 83, 49, 0.35);
+  outline-offset: 3px;
+}
+
 .pantry-stat,
 .shopping-item {
   animation: fade-in-up 350ms ease both;
@@ -420,6 +461,11 @@
 
   .grocery-card__actions {
     flex-wrap: wrap;
+  }
+
+  .back-to-top-button {
+    right: 0.8rem;
+    bottom: 0.8rem;
   }
 }
 

@@ -874,6 +874,36 @@ img.grocery-card__sprite {
   max-width: 56%;
 }
 
+.grocery-card__preferred-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.grocery-card__preferred-edit input {
+  width: 5.4rem;
+  padding: 0.22rem 0.35rem;
+  border: 1px solid #9d7958;
+  border-radius: 8px;
+  background: #fffef8;
+  color: #412c1f;
+  font: inherit;
+  font-weight: 700;
+  text-align: right;
+}
+
+.grocery-card__preferred-edit input:focus-visible {
+  outline: 3px solid #c69b68;
+  outline-offset: 1px;
+}
+
+.grocery-card__preferred-edit span {
+  color: #6f5239;
+  font-size: 0.74rem;
+  text-transform: capitalize;
+}
+
 .grocery-card__price-stack {
   display: flex;
   flex-direction: column;

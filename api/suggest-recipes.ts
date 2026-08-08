@@ -48,7 +48,19 @@ export default async function handler(
     });
   }
 
-  const groceries = request.body?.groceries;
+  let requestBody: RequestBody | undefined;
+
+  try {
+    requestBody = request.body;
+  } catch (error) {
+    console.error("Invalid JSON request body:", error);
+
+    return response.status(400).json({
+      error: "Invalid JSON request body.",
+    });
+  }
+
+  const groceries = requestBody?.groceries;
 
   if (!Array.isArray(groceries) || groceries.length === 0) {
     return response.status(400).json({

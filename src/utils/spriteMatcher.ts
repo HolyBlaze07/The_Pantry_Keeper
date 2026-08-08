@@ -2,6 +2,7 @@ import { spriteCatalog } from "../data/spriteCatalog";
 import type { GroceryCategory, GroceryItem } from "../types/grocery";
 
 export const NO_SPRITE_ID = "none";
+const MIN_CONFIDENT_SPRITE_SCORE = 4;
 
 type MatcherInput = {
   name: string;
@@ -122,6 +123,10 @@ function getSpriteScore(spriteId: string, spriteName: string, tokens: string[]) 
 export function suggestSpriteIdForGrocery(input: MatcherInput) {
   const tokens = buildSearchTokens(input);
 
+  if (tokens.length === 0) {
+    return NO_SPRITE_ID;
+  }
+
   const scored = spriteCatalog
     .map((sprite) => ({
       id: sprite.id,
@@ -135,7 +140,7 @@ export function suggestSpriteIdForGrocery(input: MatcherInput) {
 
   const bestMatch = scored[0];
 
-  if (!bestMatch || bestMatch.score <= 0) {
+  if (!bestMatch || bestMatch.score < MIN_CONFIDENT_SPRITE_SCORE) {
     return NO_SPRITE_ID;
   }
 
@@ -150,4 +155,27 @@ export function remapGroceriesToBestSprites(groceries: GroceryItem[]) {
       category: grocery.category,
     }),
   }));
+}
+
+export function remapGroceriesNeedingSprites(groceries: GroceryItem[]) {
+  const knownSpriteIds = new Set(spriteCatalog.map((sprite) => sprite.id));
+
+  return groceries.map((grocery) => {
+    const currentSpriteId = grocery.spriteId?.trim() ?? "";
+    const hasKnownSprite = knownSpriteIds.has(currentSpriteId);
+    const isExplicitNone = currentSpriteId === NO_SPRITE_ID;
+    const shouldRemap = !hasKnownSprite || isExplicitNone;
+
+    if (!shouldRemap) {
+      return grocery;
+    }
+
+    return {
+      ...grocery,
+      spriteId: suggestSpriteIdForGrocery({
+        name: grocery.name,
+        category: grocery.category,
+      }),
+    };
+  });
 }

@@ -64,6 +64,10 @@
   gap: 1rem;
 }
 
+.shopping-item__heading > div {
+  min-width: 0;
+}
+
 .shopping-item__category {
   margin: 0 0 0.25rem;
   color: #86684e;
@@ -76,10 +80,11 @@
 .shopping-item h3 {
   margin: 0;
   color: #442d20;
+  overflow-wrap: anywhere;
 }
 
 .shopping-item__need {
-  flex-shrink: 0;
+  flex-shrink: 1;
   padding: 0.35rem 0.6rem;
   border: 1px solid #a66a3f;
   border-radius: 999px;
@@ -87,6 +92,8 @@
   color: #5c3925;
   font-size: 0.75rem;
   font-weight: 800;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .shopping-item__details {

@@ -19,7 +19,8 @@ import type { GroceryItem } from "./types/grocery";
 import { GROCERY_TAG_OPTIONS } from "./types/grocery";
 import { getExpirationDetails, parseExpirationDate } from "./utils/expiration";
 import { loadGroceries, saveGroceries } from "./utils/inventoryStorage";
-import { remapGroceriesToBestSprites } from "./utils/spriteMatcher";
+import { remapGroceriesNeedingSprites } from "./utils/spriteMatcher";
+import { buildGroceriesFromPantryNotes } from "./utils/pantryNotesImport";
 
 const LOCATION_DISPLAY_ORDER: GroceryItem["storageLocation"][] = [
   "Pantry",
@@ -48,7 +49,7 @@ function initializeGroceries() {
       return loadedGroceries;
     }
 
-    const remappedGroceries = remapGroceriesToBestSprites(loadedGroceries);
+    const remappedGroceries = remapGroceriesNeedingSprites(loadedGroceries);
     const hasChanges = remappedGroceries.some(
       (grocery, index) => grocery.spriteId !== loadedGroceries[index]?.spriteId,
     );
@@ -104,8 +105,17 @@ function applyUsageToGrocery(
   };
 }
 
+function getInventoryMergeKey(grocery: GroceryItem) {
+  return `${grocery.storageLocation}|${grocery.name.toLowerCase().trim()}`;
+}
+
+function roundQuantity(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
 function App() {
   const [groceries, setGroceries] = useState(() => initializeGroceries());
+  const [isBackToTopVisible, setIsBackToTopVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
@@ -334,6 +344,19 @@ function App() {
   ]);
 
   useEffect(() => {
+    function handleScroll() {
+      setIsBackToTopVisible(window.scrollY > 320);
+    }
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
     const modalIsOpen =
       isFormOpen ||
       groceryPendingRemoval !== null ||
@@ -559,6 +582,24 @@ function App() {
     setGroceryToPersonalize(null);
   }
 
+  function handleUpdatePreferredQuantity(
+    groceryId: string,
+    preferredQuantity: number,
+  ) {
+    setGroceries((currentGroceries) =>
+      currentGroceries.map((grocery) =>
+        grocery.id === groceryId
+          ? {
+              ...grocery,
+              preferredQuantity: roundQuantity(
+                Math.max(preferredQuantity, 0.01),
+              ),
+            }
+          : grocery,
+      ),
+    );
+  }
+
   function handleMarkPurchased(groceryId: string) {
     setGroceries((currentGroceries) =>
       currentGroceries.map((grocery) => {
@@ -568,18 +609,18 @@ function App() {
 
         const preferredQuantity =
           grocery.preferredQuantity ?? grocery.quantity;
-        const automaticQuantityNeeded = Math.max(
-          preferredQuantity - grocery.quantity,
-          0,
+        const automaticQuantityNeeded = roundQuantity(
+          Math.max(preferredQuantity - grocery.quantity, 0),
         );
 
-        const purchaseQuantity =
+        const purchaseQuantity = roundQuantity(
           grocery.shoppingQuantity ??
-          Math.max(automaticQuantityNeeded, 1);
+            Math.max(automaticQuantityNeeded, 1),
+        );
 
         return {
           ...grocery,
-          quantity: grocery.quantity + purchaseQuantity,
+          quantity: roundQuantity(grocery.quantity + purchaseQuantity),
           isManuallyAddedToShoppingList: false,
           shoppingQuantity: undefined,
         };
@@ -595,9 +636,8 @@ function App() {
               const preferredQuantity =
                 grocery.preferredQuantity ?? grocery.quantity;
 
-              const automaticQuantityNeeded = Math.max(
-                preferredQuantity - grocery.quantity,
-                0,
+              const automaticQuantityNeeded = roundQuantity(
+                Math.max(preferredQuantity - grocery.quantity, 0),
               );
 
               const willBeAdded =
@@ -607,11 +647,11 @@ function App() {
                 ...grocery,
                 isManuallyAddedToShoppingList: willBeAdded,
                 shoppingQuantity: willBeAdded
-                  ? Math.max(
+                  ? roundQuantity(Math.max(
                       grocery.shoppingQuantity ??
                         automaticQuantityNeeded,
                       1,
-                    )
+                    ))
                   : undefined,
               };
             })()
@@ -633,9 +673,8 @@ function App() {
         const preferredQuantity =
           grocery.preferredQuantity ?? grocery.quantity;
 
-        const automaticQuantityNeeded = Math.max(
-          preferredQuantity - grocery.quantity,
-          1,
+        const automaticQuantityNeeded = roundQuantity(
+          Math.max(preferredQuantity - grocery.quantity, 1),
         );
 
         const currentShoppingQuantity =
@@ -643,10 +682,10 @@ function App() {
 
         return {
           ...grocery,
-          shoppingQuantity: Math.max(
+          shoppingQuantity: roundQuantity(Math.max(
             currentShoppingQuantity + amount,
             1,
-          ),
+          )),
         };
       }),
     );
@@ -700,8 +739,37 @@ function App() {
 
   function handleRefreshSpriteMatches() {
     setGroceries((currentGroceries) =>
-      remapGroceriesToBestSprites(currentGroceries),
+      remapGroceriesNeedingSprites(currentGroceries),
     );
+  }
+
+  function handleRecoverFromPantryNotes() {
+    const parsedGroceries = buildGroceriesFromPantryNotes();
+
+    setGroceries((currentGroceries) => {
+      const mergedByKey = new Map<string, GroceryItem>();
+
+      for (const grocery of currentGroceries) {
+        mergedByKey.set(getInventoryMergeKey(grocery), grocery);
+      }
+
+      for (const parsedGrocery of parsedGroceries) {
+        const mergeKey = getInventoryMergeKey(parsedGrocery);
+
+        if (!mergedByKey.has(mergeKey)) {
+          mergedByKey.set(mergeKey, parsedGrocery);
+        }
+      }
+
+      return Array.from(mergedByKey.values());
+    });
+
+    setSearchQuery("");
+    setCategoryFilter("all");
+    setTagFilter("all");
+    setLocationFilter("all");
+    setStatusFilter("all");
+    setSortBy("name-ascending");
   }
 
   return (
@@ -923,6 +991,7 @@ function App() {
                                 onReportUsage={(grocery) => setGroceryToReportUsage(grocery)}
                                 onUndoLastUsage={handleUndoLastUsage}
                                 onToggleShoppingList={handleToggleShoppingList}
+                                onUpdatePreferredQuantity={handleUpdatePreferredQuantity}
                               />
                             </div>
                           ))}
@@ -957,7 +1026,15 @@ function App() {
             className="app-settings__secondary-button"
             onClick={handleRefreshSpriteMatches}
           >
-            Refresh Sprite Matches
+            Refresh Missing Sprite Matches
+          </button>
+
+          <button
+            type="button"
+            className="app-settings__secondary-button"
+            onClick={handleRecoverFromPantryNotes}
+          >
+            Recover Missing Items From Pantry Notes
           </button>
 
           <button
@@ -1005,6 +1082,20 @@ function App() {
           variant="danger"
         />
       )}
+
+      <button
+        type="button"
+        className={`back-to-top-button ${isBackToTopVisible ? "is-visible" : ""}`}
+        onClick={() =>
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          })
+        }
+        aria-label="Back to top"
+      >
+        ↑ Top
+      </button>
 
     </main>
   );

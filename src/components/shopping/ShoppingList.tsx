@@ -10,6 +10,20 @@ type ShoppingListProps = {
   ) => void;
 };
 
+function roundQuantity(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function formatQuantity(value: number) {
+  const roundedValue = roundQuantity(value);
+
+  if (Number.isInteger(roundedValue)) {
+    return String(roundedValue);
+  }
+
+  return roundedValue.toFixed(2).replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1");
+}
+
 function ShoppingList({
   groceries,
   onMarkPurchased,
@@ -20,14 +34,14 @@ function ShoppingList({
       const preferredQuantity =
         grocery.preferredQuantity ?? grocery.quantity;
 
-      const automaticQuantityNeeded = Math.max(
-        preferredQuantity - grocery.quantity,
-        0,
+      const automaticQuantityNeeded = roundQuantity(
+        Math.max(preferredQuantity - grocery.quantity, 0),
       );
 
-      const purchaseQuantity =
+      const purchaseQuantity = roundQuantity(
         grocery.shoppingQuantity ??
-        Math.max(automaticQuantityNeeded, 1);
+          Math.max(automaticQuantityNeeded, 1),
+      );
 
       const estimatedCost =
         grocery.price !== undefined
@@ -125,7 +139,7 @@ function ShoppingList({
 
                   <span className="shopping-item__need">
                     {automaticQuantityNeeded > 0
-                      ? `Suggested ${automaticQuantityNeeded}`
+                      ? `Suggested ${formatQuantity(automaticQuantityNeeded)}`
                       : "Manually Added"}
                   </span>
                 </div>
@@ -134,14 +148,14 @@ function ShoppingList({
                   <div>
                     <dt>Current</dt>
                     <dd>
-                      {grocery.quantity} {grocery.quantityUnit}
+                      {formatQuantity(grocery.quantity)} {grocery.quantityUnit}
                     </dd>
                   </div>
 
                   <div>
                     <dt>Preferred</dt>
                     <dd>
-                      {preferredQuantity} {grocery.quantityUnit}
+                      {formatQuantity(preferredQuantity)} {grocery.quantityUnit}
                     </dd>
                   </div>
 
@@ -160,7 +174,7 @@ function ShoppingList({
                       </button>
 
                       <strong>
-                        {purchaseQuantity} {grocery.quantityUnit}
+                        {formatQuantity(purchaseQuantity)} {grocery.quantityUnit}
                       </strong>
 
                       <button

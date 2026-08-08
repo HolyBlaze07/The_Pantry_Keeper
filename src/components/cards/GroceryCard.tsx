@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import type { GroceryItem } from "../../types/grocery";
 import { GROCERY_TAG_OPTIONS } from "../../types/grocery";
 import { spriteCatalog } from "../../data/spriteCatalog";
@@ -179,6 +179,7 @@ type GroceryCardProps = {
   onReportUsage: (grocery: GroceryItem) => void;
   onUndoLastUsage: (groceryId: string) => void;
   onToggleShoppingList: (groceryId: string) => void;
+  onUpdatePreferredQuantity: (groceryId: string, preferredQuantity: number) => void;
 };
 
 const quantityFormatter = new Intl.NumberFormat("en-US", {
@@ -325,6 +326,7 @@ function GroceryCard({
   onReportUsage,
   onUndoLastUsage,
   onToggleShoppingList,
+  onUpdatePreferredQuantity,
 }: GroceryCardProps) {
   const [isBackVisible, setIsBackVisible] = useState(false);
   const cardInsight = getCardInsight(item);
@@ -372,10 +374,6 @@ function GroceryCard({
   const brandName = item.brandName?.trim() || "Not added";
   const storeName = item.storeName?.trim() || "Not added";
   const displayTags = getDisplayTags(item);
-  const preferredQuantityLabel =
-    item.preferredQuantity !== undefined
-      ? `${item.preferredQuantity} ${item.quantityUnit}`
-      : "Not added";
   const shoppingNotes = [
     storeName !== "Not added"
       ? `Usually purchased from ${storeName}.`
@@ -390,6 +388,33 @@ function GroceryCard({
     latestUsageEntry?.source === "mark-finished"
       ? "Undo Mark Finished"
       : "Undo Last Usage";
+  const [preferredQuantityDraft, setPreferredQuantityDraft] = useState(
+    String(Math.max(item.preferredQuantity ?? item.quantity, 1)),
+  );
+
+  useEffect(() => {
+    setPreferredQuantityDraft(String(Math.max(item.preferredQuantity ?? item.quantity, 1)));
+  }, [item.preferredQuantity, item.quantity]);
+
+  function handleCommitPreferredQuantity() {
+    const parsedValue = Number.parseFloat(preferredQuantityDraft);
+
+    if (Number.isNaN(parsedValue) || parsedValue <= 0) {
+      setPreferredQuantityDraft(String(Math.max(item.preferredQuantity ?? item.quantity, 1)));
+      return;
+    }
+
+    onUpdatePreferredQuantity(
+      item.id,
+      Math.round((Math.max(parsedValue, 0.01) + Number.EPSILON) * 100) / 100,
+    );
+  }
+
+  function handlePreferredQuantityKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter") {
+      event.currentTarget.blur();
+    }
+  }
 
   useEffect(() => {
     let animationFrameId = 0;
@@ -719,7 +744,21 @@ function GroceryCard({
 
               <div className="grocery-card__detail">
                 <dt>Preferred Quantity</dt>
-                <dd>{preferredQuantityLabel}</dd>
+                <dd>
+                  <label className="grocery-card__preferred-edit" aria-label={`Edit preferred quantity for ${item.name}`}>
+                    <input
+                      type="number"
+                      min={0.01}
+                      step={0.01}
+                      inputMode="decimal"
+                      value={preferredQuantityDraft}
+                      onChange={(event) => setPreferredQuantityDraft(event.target.value)}
+                      onBlur={handleCommitPreferredQuantity}
+                      onKeyDown={handlePreferredQuantityKeyDown}
+                    />
+                    <span>{item.quantityUnit}</span>
+                  </label>
+                </dd>
               </div>
             </dl>
 

@@ -75,11 +75,23 @@
   text-align: center;
 }
 
-.stock-preference-modal__value strong {
-  display: block;
+.stock-preference-modal__input {
+  width: 100%;
+  max-width: 6rem;
+  border: 1px solid #ab8865;
+  border-radius: 10px;
+  background: #fffef9;
   color: #432b1e;
+  font: inherit;
   font-size: 1.8rem;
+  font-weight: 700;
   line-height: 1;
+  text-align: center;
+}
+
+.stock-preference-modal__input:focus-visible {
+  outline: 3px solid rgba(126, 83, 49, 0.32);
+  outline-offset: 1px;
 }
 
 .stock-preference-modal__value span {

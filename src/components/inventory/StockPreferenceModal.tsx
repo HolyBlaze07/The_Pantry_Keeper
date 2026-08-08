@@ -14,6 +14,7 @@ function StockPreferenceModal({
   onSkip,
 }: StockPreferenceModalProps) {
   const dialogRef = useRef<HTMLElement | null>(null);
+  const quantityInputRef = useRef<HTMLInputElement | null>(null);
   const initialPreferredQuantity = useMemo(
     () => Math.max(grocery.quantity, 1),
     [grocery.quantity],
@@ -21,14 +22,24 @@ function StockPreferenceModal({
   const [preferredQuantity, setPreferredQuantity] = useState(
     initialPreferredQuantity,
   );
+  const [preferredQuantityInput, setPreferredQuantityInput] = useState(
+    String(initialPreferredQuantity),
+  );
+
+  function updatePreferredQuantity(nextValue: number) {
+    const normalizedValue = Math.max(1, Math.round(nextValue));
+    setPreferredQuantity(normalizedValue);
+    setPreferredQuantityInput(String(normalizedValue));
+  }
 
   useEffect(() => {
-    const focusTarget = dialogRef.current?.querySelector<HTMLElement>(
-      "button",
-    );
-
-    focusTarget?.focus();
+    quantityInputRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    setPreferredQuantity(initialPreferredQuantity);
+    setPreferredQuantityInput(String(initialPreferredQuantity));
+  }, [initialPreferredQuantity]);
 
   return (
     <div className="stock-preference-modal__backdrop" role="presentation">
@@ -53,23 +64,61 @@ function StockPreferenceModal({
           <button
             type="button"
             className="stock-preference-modal__stepper"
-            onClick={() =>
-              setPreferredQuantity((currentValue) => Math.max(1, currentValue - 1))
-            }
+            onClick={() => updatePreferredQuantity(preferredQuantity - 1)}
             aria-label="Decrease preferred stock"
           >
             −
           </button>
 
           <div className="stock-preference-modal__value">
-            <strong>{preferredQuantity}</strong>
+            <input
+              ref={quantityInputRef}
+              type="number"
+              min={1}
+              step={1}
+              inputMode="numeric"
+              className="stock-preference-modal__input"
+              value={preferredQuantityInput}
+              onChange={(event) => {
+                const nextValue = event.target.value;
+
+                if (!/^\d*$/.test(nextValue)) {
+                  return;
+                }
+
+                setPreferredQuantityInput(nextValue);
+
+                if (nextValue === "") {
+                  return;
+                }
+
+                const parsedValue = Number.parseInt(nextValue, 10);
+
+                if (Number.isNaN(parsedValue)) {
+                  return;
+                }
+
+                setPreferredQuantity(Math.max(1, parsedValue));
+              }}
+              onBlur={() => {
+                const parsedValue = Number.parseInt(preferredQuantityInput, 10);
+
+                if (Number.isNaN(parsedValue)) {
+                  updatePreferredQuantity(preferredQuantity);
+                  return;
+                }
+
+                updatePreferredQuantity(parsedValue);
+              }}
+              aria-label="Preferred stock quantity"
+            />
             <span>{grocery.quantityUnit}</span>
           </div>
 
           <button
             type="button"
             className="stock-preference-modal__stepper"
-            onClick={() => setPreferredQuantity((currentValue) => currentValue + 1)}
+            onClick={() => updatePreferredQuantity(preferredQuantity + 1)}
             aria-label="Increase preferred stock"
           >
             +
