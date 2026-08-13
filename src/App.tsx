@@ -77,7 +77,7 @@ function getLocationLabel(location: GroceryItem["storageLocation"]) {
 function applyUsageToGrocery(
   grocery: GroceryItem,
   amountUsed: number,
-  source: "report-usage" | "mark-finished",
+  source: "report-usage" | "mark-finished" | "discard-expired",
 ) {
   const nextQuantity = Math.max(grocery.quantity - amountUsed, 0);
   const preferredQuantity = grocery.preferredQuantity ?? 0;
@@ -129,6 +129,8 @@ function App() {
   const [groceryToReportUsage, setGroceryToReportUsage] =
     useState<GroceryItem | null>(null);
   const [groceryPendingFinish, setGroceryPendingFinish] =
+    useState<GroceryItem | null>(null);
+  const [groceryPendingDiscard, setGroceryPendingDiscard] =
     useState<GroceryItem | null>(null);
   const [groceryPendingRemoval, setGroceryPendingRemoval] =
     useState<GroceryItem | null>(null);
@@ -308,6 +310,11 @@ function App() {
         return;
       }
 
+      if (groceryPendingDiscard) {
+        setGroceryPendingDiscard(null);
+        return;
+      }
+
       if (isResetConfirmOpen) {
         setIsResetConfirmOpen(false);
         return;
@@ -337,6 +344,7 @@ function App() {
   }, [
     groceryPendingRemoval,
     groceryPendingFinish,
+    groceryPendingDiscard,
     groceryToReportUsage,
     groceryToPersonalize,
     isFormOpen,
@@ -361,6 +369,7 @@ function App() {
       isFormOpen ||
       groceryPendingRemoval !== null ||
       groceryPendingFinish !== null ||
+      groceryPendingDiscard !== null ||
       groceryToReportUsage !== null ||
       groceryToPersonalize !== null ||
       isResetConfirmOpen;
@@ -394,6 +403,7 @@ function App() {
   }, [
     groceryPendingRemoval,
     groceryPendingFinish,
+    groceryPendingDiscard,
     groceryToReportUsage,
     groceryToPersonalize,
     isFormOpen,
@@ -475,6 +485,30 @@ function App() {
     );
 
     setGroceryPendingFinish(null);
+  }
+
+  function handleConfirmDiscardExpired() {
+    if (!groceryPendingDiscard) {
+      return;
+    }
+
+    const groceryId = groceryPendingDiscard.id;
+
+    setGroceries((currentGroceries) =>
+      currentGroceries.map((grocery) => {
+        if (grocery.id !== groceryId || grocery.quantity <= 0) {
+          return grocery;
+        }
+
+        return applyUsageToGrocery(
+          grocery,
+          grocery.quantity,
+          "discard-expired",
+        );
+      }),
+    );
+
+    setGroceryPendingDiscard(null);
   }
 
   function handleUndoLastUsage(groceryId: string) {
@@ -988,6 +1022,7 @@ function App() {
                                 onDecreaseQuantity={handleDecreaseQuantity}
                                 onEditGrocery={handleEditGrocery}
                                 onMarkContainerFinished={(grocery) => setGroceryPendingFinish(grocery)}
+                                onDiscardExpired={(grocery) => setGroceryPendingDiscard(grocery)}
                                 onReportUsage={(grocery) => setGroceryToReportUsage(grocery)}
                                 onUndoLastUsage={handleUndoLastUsage}
                                 onToggleShoppingList={handleToggleShoppingList}
@@ -1066,6 +1101,17 @@ function App() {
           onCancel={() => setGroceryPendingFinish(null)}
           onConfirm={handleConfirmMarkContainerFinished}
           variant="default"
+        />
+      )}
+
+      {groceryPendingDiscard && (
+        <ConfirmModal
+          title={`Discard ${groceryPendingDiscard.name}?`}
+          message={`This will set ${groceryPendingDiscard.name} to 0 ${groceryPendingDiscard.quantityUnit} and record that it was discarded because it expired.`}
+          confirmLabel="Discard Item"
+          onCancel={() => setGroceryPendingDiscard(null)}
+          onConfirm={handleConfirmDiscardExpired}
+          variant="danger"
         />
       )}
 

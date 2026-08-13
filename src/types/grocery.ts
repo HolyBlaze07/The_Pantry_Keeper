@@ -97,7 +97,7 @@ export type GroceryUsageEntry = {
   previousQuantity?: number;
   previousShoppingQuantity?: number;
   previousIsManuallyAddedToShoppingList?: boolean;
-  source?: "report-usage" | "mark-finished";
+  source?: "report-usage" | "mark-finished" | "discard-expired";
 };
 
 export type GroceryItem = {

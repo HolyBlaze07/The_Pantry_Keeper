@@ -176,6 +176,7 @@ type GroceryCardProps = {
   onDecreaseQuantity: (groceryId: string) => void;
   onEditGrocery: (grocery: GroceryItem) => void;
   onMarkContainerFinished: (grocery: GroceryItem) => void;
+  onDiscardExpired: (grocery: GroceryItem) => void;
   onReportUsage: (grocery: GroceryItem) => void;
   onUndoLastUsage: (groceryId: string) => void;
   onToggleShoppingList: (groceryId: string) => void;
@@ -239,9 +240,16 @@ function getUsageHistorySummary(item: GroceryItem) {
     weeklyRate = (totalUsed / daySpan) * 7;
   }
 
+  const lastActionLabel =
+    latestEntry.source === "discard-expired"
+      ? "discarded"
+      : latestEntry.source === "mark-finished"
+        ? "marked finished"
+        : "used";
+
   const details = [
-    `Last used ${formatQuantity(latestEntry.amountUsed)} ${item.quantityUnit} on ${formatUsageDate(latestEntry.recordedAt)}.`,
-    `Tracked ${formatQuantity(totalUsed)} ${item.quantityUnit} across ${usageHistory.length} usage ${usageHistory.length === 1 ? "report" : "reports"}.`,
+    `Last action: ${lastActionLabel} ${formatQuantity(latestEntry.amountUsed)} ${item.quantityUnit} on ${formatUsageDate(latestEntry.recordedAt)}.`,
+    `Tracked ${formatQuantity(totalUsed)} ${item.quantityUnit} across ${usageHistory.length} usage ${usageHistory.length === 1 ? "entry" : "entries"}.`,
   ];
 
   if (weeklyRate !== null) {
@@ -323,6 +331,7 @@ function GroceryCard({
   onDecreaseQuantity,
   onEditGrocery,
   onMarkContainerFinished,
+  onDiscardExpired,
   onReportUsage,
   onUndoLastUsage,
   onToggleShoppingList,
@@ -387,7 +396,9 @@ function GroceryCard({
   const undoUsageLabel =
     latestUsageEntry?.source === "mark-finished"
       ? "Undo Mark Finished"
-      : "Undo Last Usage";
+      : latestUsageEntry?.source === "discard-expired"
+        ? "Undo Discard"
+        : "Undo Last Usage";
   const [preferredQuantityDraft, setPreferredQuantityDraft] = useState(
     String(Math.max(item.preferredQuantity ?? item.quantity, 1)),
   );
@@ -817,6 +828,15 @@ function GroceryCard({
                 disabled={item.quantity <= 0}
               >
                 Mark Finished
+              </button>
+
+              <button
+                type="button"
+                className="grocery-card__discard-button"
+                onClick={() => onDiscardExpired(item)}
+                disabled={item.quantity <= 0}
+              >
+                Discard Expired
               </button>
 
               <button

@@ -580,11 +580,19 @@ img.grocery-card__sprite {
 }
 
 .grocery-card__actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  align-items: stretch;
   gap: 0.5rem;
   margin-top: 0.8rem;
+}
+
+.grocery-card__actions > button {
+  width: 100%;
+  min-height: 42px;
+  line-height: 1.1;
+  text-align: center;
+  white-space: normal;
 }
 
 .grocery-card__flip-button {
@@ -643,6 +651,18 @@ img.grocery-card__sprite {
   border-radius: 999px;
   background: #f9e0d0;
   color: #4b3121;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.grocery-card__discard-button {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #9d4f46;
+  border-radius: 999px;
+  background: #f8d7d2;
+  color: #5b241d;
   font: inherit;
   font-size: 0.75rem;
   font-weight: 800;
@@ -722,6 +742,10 @@ img.grocery-card__sprite {
   background: #efccb6;
 }
 
+.grocery-card__discard-button:hover {
+  background: #efc0b8;
+}
+
 .grocery-card__undo-button:hover {
   background: #ead1a5;
 }
@@ -736,12 +760,22 @@ img.grocery-card__sprite {
   outline-offset: 2px;
 }
 
+.grocery-card__discard-button:focus-visible {
+  outline: 3px solid #d08a81;
+  outline-offset: 2px;
+}
+
 .grocery-card__undo-button:focus-visible {
   outline: 3px solid #c69b68;
   outline-offset: 2px;
 }
 
 .grocery-card__finish-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.grocery-card__discard-button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -1016,6 +1050,16 @@ img.grocery-card__sprite {
   img.grocery-card__sprite {
     width: 112px;
     height: 112px;
+  }
+
+  .grocery-card__actions {
+    grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+    gap: 0.4rem;
+  }
+
+  .grocery-card__actions > button {
+    min-height: 40px;
+    font-size: 0.72rem;
   }
 }
 
