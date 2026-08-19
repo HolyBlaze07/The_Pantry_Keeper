@@ -10,17 +10,25 @@ import PantryDashboard from "./components/dashboard/PantryDashboard";
 import ShoppingList from "./components/shopping/ShoppingList";
 import RecipeSuggestions from "./components/recipes/RecipeSuggestions";
 import ConfirmModal from "./components/ui/ConfirmModal";
+import AuthForm from "./components/auth/AuthForm";
 import { sampleGroceries } from "./data/sampleGroceries";
 import { homeInventory } from "./data/homeInventory";
 import { spriteCatalog } from "./data/spriteCatalog";
 import PixelBlast from "./components/backgrounds/PixelBlast";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "./hooks/useAuth";
+import { supabase } from "./lib/supabase";
 import type { GroceryItem } from "./types/grocery";
 import { GROCERY_TAG_OPTIONS } from "./types/grocery";
 import { getExpirationDetails, parseExpirationDate } from "./utils/expiration";
 import { loadGroceries, saveGroceries } from "./utils/inventoryStorage";
 import { remapGroceriesNeedingSprites } from "./utils/spriteMatcher";
 import { buildGroceriesFromPantryNotes } from "./utils/pantryNotesImport";
+import {
+  getGroceries as getCloudGroceries,
+  importGroceries as importCloudGroceries,
+  syncGroceriesSnapshot,
+} from "./services/groceries";
 
 const LOCATION_DISPLAY_ORDER: GroceryItem["storageLocation"][] = [
   "Pantry",
@@ -114,8 +122,21 @@ function roundQuantity(value: number) {
 }
 
 function App() {
+  const {
+    session,
+    user,
+    isLoading: isAuthLoading,
+  } = useAuth();
+
   const [groceries, setGroceries] = useState(() => initializeGroceries());
   const [isBackToTopVisible, setIsBackToTopVisible] = useState(false);
+  const [isCloudLoading, setIsCloudLoading] = useState(false);
+  const [hasLoadedCloudInventory, setHasLoadedCloudInventory] = useState(false);
+  const [isCloudSyncEnabled, setIsCloudSyncEnabled] = useState(false);
+  const [needsCloudImport, setNeedsCloudImport] = useState(false);
+  const [isImportingCloudInventory, setIsImportingCloudInventory] = useState(false);
+  const [cloudInventoryMessage, setCloudInventoryMessage] = useState("");
+  const [cloudInventoryError, setCloudInventoryError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
@@ -139,6 +160,7 @@ function App() {
   const [collapsedLocations, setCollapsedLocations] = useState<
     Partial<Record<GroceryItem["storageLocation"], boolean>>
   >({});
+  const skipNextCloudSyncRef = useRef(false);
   const groceryCount = groceries.length;
   const categories = useMemo(() => {
     return Array.from(
@@ -293,6 +315,125 @@ function App() {
   useEffect(() => {
     saveGroceries(groceries);
   }, [groceries]);
+
+  useEffect(() => {
+    const userId = user?.id;
+
+    if (!userId) {
+      return;
+    }
+
+    const currentUserId = userId;
+
+    let isCancelled = false;
+
+    async function loadCloudInventory() {
+      setIsCloudLoading(true);
+      setCloudInventoryError("");
+      setCloudInventoryMessage("");
+
+      try {
+        const cloudGroceries = await getCloudGroceries(currentUserId);
+
+        if (isCancelled) {
+          return;
+        }
+
+        if (cloudGroceries.length > 0) {
+          skipNextCloudSyncRef.current = true;
+          setGroceries(cloudGroceries);
+          setIsCloudSyncEnabled(true);
+          setNeedsCloudImport(false);
+          setCloudInventoryMessage(
+            `Loaded ${cloudGroceries.length} groceries from your account.`,
+          );
+        } else {
+          const localGroceries = loadGroceries([]);
+          const hasLocalInventory = localGroceries.length > 0;
+
+          setNeedsCloudImport(hasLocalInventory);
+          setIsCloudSyncEnabled(!hasLocalInventory);
+
+          if (hasLocalInventory) {
+            setCloudInventoryMessage(
+              "Cloud inventory is empty. Import your current local inventory when ready.",
+            );
+          } else {
+            setCloudInventoryMessage(
+              "Cloud inventory is empty. New changes will sync to your account.",
+            );
+          }
+        }
+
+        setHasLoadedCloudInventory(true);
+      } catch (error) {
+        if (isCancelled) {
+          return;
+        }
+
+        setCloudInventoryError(
+          error instanceof Error
+            ? error.message
+            : "Could not load groceries from Supabase.",
+        );
+      } finally {
+        if (!isCancelled) {
+          setIsCloudLoading(false);
+        }
+      }
+    }
+
+    void loadCloudInventory();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    const userId = user?.id;
+
+    if (!userId || !hasLoadedCloudInventory || !isCloudSyncEnabled) {
+      return;
+    }
+
+    const currentUserId = userId;
+
+    if (skipNextCloudSyncRef.current) {
+      skipNextCloudSyncRef.current = false;
+      return;
+    }
+
+    let isCancelled = false;
+
+    async function syncCloudInventory() {
+      try {
+        await syncGroceriesSnapshot(currentUserId, groceries);
+
+        if (isCancelled) {
+          return;
+        }
+
+        setCloudInventoryError("");
+      } catch (error) {
+        if (isCancelled) {
+          return;
+        }
+
+        setCloudInventoryError(
+          error instanceof Error
+            ? error.message
+            : "Could not sync groceries to Supabase.",
+        );
+      }
+    }
+
+    void syncCloudInventory();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [groceries, hasLoadedCloudInventory, isCloudSyncEnabled, user]);
 
   useEffect(() => {
     function handleEscapeKey(event: KeyboardEvent) {
@@ -806,6 +947,49 @@ function App() {
     setSortBy("name-ascending");
   }
 
+  async function handleImportExistingInventory() {
+    const userId = user?.id;
+
+    if (!userId) {
+      return;
+    }
+
+    const currentUserId = userId;
+
+    setIsImportingCloudInventory(true);
+    setCloudInventoryError("");
+    setCloudInventoryMessage("");
+
+    try {
+      await importCloudGroceries(currentUserId, groceries);
+      setIsCloudSyncEnabled(true);
+      setNeedsCloudImport(false);
+      setCloudInventoryMessage(
+        `Imported ${groceries.length} local groceries to your Supabase account.`,
+      );
+    } catch (error) {
+      setCloudInventoryError(
+        error instanceof Error
+          ? error.message
+          : "Could not import local groceries.",
+      );
+    } finally {
+      setIsImportingCloudInventory(false);
+    }
+  }
+
+  if (isAuthLoading || (user !== null && isCloudLoading && !hasLoadedCloudInventory)) {
+    return (
+      <main className="app">
+        <p>Loading account...</p>
+      </main>
+    );
+  }
+
+  if (!session || !user) {
+    return <AuthForm />;
+  }
+
   return (
     <main className="app">
       <div className="app-snow" aria-hidden="true">
@@ -834,7 +1018,7 @@ function App() {
         <section className="welcome">
           <p className="eyebrow">A Smart Grocery Inventory</p>
 
-          <h1>The Pantry Keeper</h1>
+          <h1>Amealy</h1>
 
           <p className="description">
             Collect your groceries, track their freshness, and preserve every
@@ -844,6 +1028,41 @@ function App() {
           <p className="description">
             Loaded groceries: {groceryCount}
           </p>
+
+          {cloudInventoryMessage && (
+            <p className="description">{cloudInventoryMessage}</p>
+          )}
+
+          {cloudInventoryError && (
+            <p className="description" role="alert">
+              Sync error: {cloudInventoryError}
+            </p>
+          )}
+
+          {needsCloudImport && (
+            <button
+              type="button"
+              className="app-settings__secondary-button"
+              onClick={() => {
+                void handleImportExistingInventory();
+              }}
+              disabled={isImportingCloudInventory}
+            >
+              {isImportingCloudInventory
+                ? "Importing Inventory..."
+                : "Import Existing Inventory"}
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="app-settings__secondary-button"
+            onClick={() => {
+              void supabase.auth.signOut();
+            }}
+          >
+            Sign Out
+          </button>
 
           <button
             type="button"

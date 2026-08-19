@@ -1,6 +1,6 @@
-# The Pantry Keeper
+# Amealy Pantry 
 
-The Pantry Keeper is a grocery inventory application that helps users track food quantities, expiration dates, preferred stock levels, and shopping needs.
+Amealy is a grocery inventory application that helps users track food quantities, expiration dates, preferred stock levels, and shopping needs.
 
 ## Features
 

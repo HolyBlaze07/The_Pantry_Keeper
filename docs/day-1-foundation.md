@@ -2,7 +2,7 @@
 
 ## Project
 
-The Pantry Keeper
+Amealy Pantry
 
 ## Goal
 

@@ -543,7 +543,7 @@ function RecipeSuggestions({
         setRecipeSource("local");
         saveRecipeBatch("local", fallbackRecipes);
         setError(
-          "AI suggestions are paused, so Pantry Keeper is using local recipe matches.",
+          "AI suggestions are unavailable right now, so Pantry Keeper is using local recipe matches.",
         );
       } else {
         setRecipes([]);
