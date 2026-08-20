@@ -1,0 +1,362 @@
+:root {
+  --bg: #0d0908;
+  --surface: #211512;
+  --surface-warm: #382519;
+  --surface-input: #291b16;
+  --text-primary: #fff1d6;
+  --text-secondary: #d9c2a3;
+  --gold: #d9a85f;
+  --gold-light: #e6c27a;
+  --border: #6d4a30;
+  --purple: #7165b5;
+  --purple-bright: #8b7dd1;
+  --purple-muted: #51467e;
+}
+
+.auth-page {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(113, 101, 181, 0.16), transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(81, 70, 126, 0.2), transparent 45%),
+    linear-gradient(160deg, var(--bg) 0%, #0a0707 100%);
+}
+
+.auth-page-terminal {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.auth-shell {
+  position: relative;
+  z-index: 2;
+  width: min(1060px, 100%);
+  min-height: 670px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid rgba(139, 125, 209, 0.45);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow:
+    0 0 35px rgba(113, 101, 181, 0.1),
+    0 30px 80px rgba(0, 0, 0, 0.55);
+  background: var(--surface);
+}
+
+.auth-brand-panel {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 52px 48px;
+  background:
+    radial-gradient(circle at 85% 90%, rgba(217, 168, 95, 0.25), transparent 25%),
+    linear-gradient(145deg, #3b281c 0%, #2e1d18 100%);
+}
+
+.auth-brand__trail {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.auth-brand__copy {
+  position: relative;
+  z-index: 4;
+  max-width: 420px;
+  margin-top: auto;
+  pointer-events: none;
+}
+
+.auth-brand__name {
+  position: relative;
+  z-index: 4;
+  margin: 0 0 14px;
+  color: var(--text-primary);
+  font: 800 clamp(2rem, 5vw, 2.9rem)/1.05 "Nunito", sans-serif;
+  pointer-events: none;
+}
+
+.auth-brand__copy p {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 600 0.98rem/1.6 "Nunito", sans-serif;
+}
+
+.auth-brand__copy p:nth-of-type(1) {
+  margin-bottom: 12px;
+  color: var(--gold);
+  font: 800 0.74rem/1 "Nunito", sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.auth-brand__copy p:nth-of-type(2) {
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.auth-brand__art {
+  position: absolute;
+  right: -60px;
+  bottom: -60px;
+  width: 290px;
+  height: 290px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(217, 168, 95, 0.4) 0%, rgba(217, 168, 95, 0.06) 62%, transparent 76%);
+  filter: blur(1px);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.auth-form-panel {
+  display: grid;
+  place-items: center;
+  padding: 48px;
+  background: var(--surface);
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 410px;
+}
+
+.auth-eyebrow {
+  margin: 0;
+  color: var(--gold);
+  font: 700 0.74rem/1 "Nunito", sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.auth-form-wrapper h1 {
+  margin: 14px 0 22px;
+  color: var(--text-primary);
+  font: 800 clamp(2.2rem, 4vw, 2.8rem)/1 "Nunito", sans-serif;
+}
+
+.auth-social {
+  display: grid;
+  gap: 10px;
+}
+
+.auth-social-btn {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font: 700 0.9rem "Nunito", sans-serif;
+  cursor: pointer;
+}
+
+.auth-social-btn:hover {
+  border-color: var(--gold-light);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.auth-social-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.auth-divider {
+  margin: 16px 0;
+  display: flex;
+  align-items: center;
+  color: var(--text-secondary);
+  font: 600 0.78rem "Nunito", sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--border);
+}
+
+.auth-divider span {
+  padding: 0 10px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--text-primary);
+  font: 700 0.86rem "Nunito", sans-serif;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-input);
+  color: var(--text-primary);
+  font: 600 0.95rem "Nunito", sans-serif;
+}
+
+.auth-form input:focus-visible,
+.auth-submit:focus-visible,
+.auth-link:focus-visible,
+.auth-switch button:focus-visible,
+.auth-password-toggle:focus-visible {
+  outline: 2px solid var(--purple-bright);
+  outline-offset: 2px;
+}
+
+.auth-password-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.auth-password-toggle {
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-input);
+  color: var(--text-primary);
+  font: 700 0.8rem "Nunito", sans-serif;
+  cursor: pointer;
+}
+
+.auth-submit {
+  margin-top: 6px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--gold-light), var(--gold));
+  color: var(--surface);
+  font: 800 0.94rem "Nunito", sans-serif;
+  cursor: pointer;
+}
+
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.auth-link {
+  display: block;
+  margin: 22px auto 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold-light);
+  font: 700 0.85rem "Nunito", sans-serif;
+  cursor: pointer;
+}
+
+.auth-switch {
+  margin: 18px 0 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font: 600 0.87rem "Nunito", sans-serif;
+}
+
+.auth-switch button {
+  margin-left: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--gold-light);
+  font: 800 0.87rem "Nunito", sans-serif;
+  cursor: pointer;
+}
+
+.auth-message {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(113, 101, 181, 0.1);
+  color: var(--text-primary);
+  font: 600 0.85rem/1.45 "Nunito", sans-serif;
+}
+
+@media (max-width: 800px) {
+  .auth-page {
+    padding: 0;
+    display: block;
+    background: var(--bg);
+  }
+
+  .auth-shell {
+    min-height: 100vh;
+    grid-template-columns: 1fr;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .auth-brand-panel {
+    min-height: 245px;
+    padding: 28px 24px;
+  }
+
+  .auth-brand__trail {
+    inset: 0;
+  }
+
+  .auth-brand__copy h2 {
+    font-size: 1.8rem;
+  }
+
+  .auth-brand__name {
+    font-size: 1.8rem;
+  }
+
+  .auth-brand__art {
+    opacity: 0.45;
+  }
+
+  .auth-form-panel {
+    padding: 40px 24px 56px;
+    place-items: start center;
+  }
+
+  .auth-form-wrapper {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  .auth-form-wrapper h1 {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-brand-panel {
+    min-height: 200px;
+  }
+
+  .auth-brand__copy p:nth-of-type(3) {
+    display: none;
+  }
+
+  .auth-brand__name {
+    max-width: 260px;
+    font-size: 1.55rem;
+  }
+
+  .auth-form-panel {
+    padding: 32px 20px 48px;
+  }
+}
