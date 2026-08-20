@@ -489,6 +489,11 @@
 }
 
 @media (max-width: 700px) {
+  .recipe-suggestions {
+    padding: 0.9rem;
+    border-radius: 20px;
+  }
+
   .recipe-suggestions__heading {
     align-items: flex-start;
     flex-direction: column;
@@ -497,6 +502,17 @@
   .recipe-suggestions__actions {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .recipe-suggestions__actions button {
+    flex: 1 1 150px;
+    min-height: 46px;
+  }
+
+  .recipe-suggestions__grid,
+  .recipe-bank__grid,
+  .recipe-history__list {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .recipe-history__header {

@@ -32,6 +32,14 @@
   z-index: 2;
 }
 
+.app-section-anchor {
+  scroll-margin-top: 5.5rem;
+}
+
+.mobile-quick-nav {
+  display: none;
+}
+
 .welcome {
   max-width: 760px;
   margin: 0 auto 4rem;
@@ -453,8 +461,70 @@
 
 @media (max-width: 600px) {
   .app {
-    width: min(100% - 1rem, 1400px);
-    padding-top: 2rem;
+    width: min(100% - 0.75rem, 1400px);
+    padding: max(1rem, env(safe-area-inset-top)) 0 calc(6rem + env(safe-area-inset-bottom));
+  }
+
+  .app-snow {
+    pointer-events: none;
+    opacity: 0.52;
+  }
+
+  .welcome {
+    margin-bottom: 1.25rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .welcome h1 {
+    font-size: clamp(2.8rem, 18vw, 4.5rem);
+  }
+
+  .description {
+    margin-top: 0.85rem;
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+
+  .welcome > button {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    margin: 0.45rem 0 0;
+  }
+
+  .mobile-quick-nav {
+    position: sticky;
+    top: max(8px, env(safe-area-inset-top));
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    margin: 0 0 1rem;
+    padding: 5px;
+    border: 1px solid rgba(89, 55, 31, 0.25);
+    border-radius: 16px;
+    background: rgba(255, 248, 228, 0.92);
+    box-shadow: 0 8px 24px rgba(64, 41, 28, 0.14);
+    backdrop-filter: blur(12px);
+  }
+
+  .mobile-quick-nav a {
+    display: grid;
+    min-width: 0;
+    min-height: 44px;
+    place-items: center;
+    padding: 0.45rem 0.25rem;
+    border-radius: 11px;
+    color: #523522;
+    font-size: clamp(0.66rem, 3vw, 0.78rem);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .mobile-quick-nav a:active,
+  .mobile-quick-nav a:focus-visible {
+    background: #ead1a5;
+    outline: none;
   }
 
   .page-header {
@@ -462,7 +532,7 @@
   }
 
   .collection {
-    padding: 1rem;
+    padding: 0.65rem;
     border-radius: 22px;
   }
 
@@ -498,9 +568,26 @@
     flex-wrap: wrap;
   }
 
+  .collection-location-group {
+    padding: 0.7rem;
+  }
+
+  .collection-location-group__toggle {
+    min-height: 48px;
+    padding: 0.55rem 0.25rem;
+  }
+
   .back-to-top-button {
     right: 0.8rem;
-    bottom: 0.8rem;
+    bottom: calc(0.8rem + env(safe-area-inset-bottom));
+    min-height: 46px;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .add-grocery-button:hover,
+  .grocery-card:hover {
+    transform: none;
   }
 }
 

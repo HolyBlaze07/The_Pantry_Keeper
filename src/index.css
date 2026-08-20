@@ -6,6 +6,9 @@ html {
   color: #34251c;
   background: #eee2ca;
   font-family: "Quicksand", sans-serif;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 h1,
 h2,
@@ -41,6 +44,7 @@ body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
   background:
     radial-gradient(circle at top, #fff8df 0%, transparent 45%),
     linear-gradient(135deg, #eee2ca, #d9c5a8);
@@ -59,4 +63,25 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+button,
+[role="button"],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: none), (pointer: coarse) {
+  button,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
 }

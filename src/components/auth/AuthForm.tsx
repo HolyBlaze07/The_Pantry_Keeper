@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
 import FaultyTerminal from './FaultyTerminal'
@@ -21,6 +21,26 @@ function AuthForm() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isMobileViewport, setIsMobileViewport] = useState(() =>
+    window.matchMedia('(max-width: 800px)').matches,
+  )
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+
+  useEffect(() => {
+    const mobileQuery = window.matchMedia('(max-width: 800px)')
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const handleMobileChange = () => setIsMobileViewport(mobileQuery.matches)
+    const handleMotionChange = () => setPrefersReducedMotion(motionQuery.matches)
+
+    mobileQuery.addEventListener('change', handleMobileChange)
+    motionQuery.addEventListener('change', handleMotionChange)
+    return () => {
+      mobileQuery.removeEventListener('change', handleMobileChange)
+      motionQuery.removeEventListener('change', handleMotionChange)
+    }
+  }, [])
 
   const trailItems = [
     strawberrySprite,
@@ -95,35 +115,48 @@ function AuthForm() {
     }
   }
 
-  function handleSocialClick(provider: 'google' | 'apple') {
-    setMessage(
-      `${provider === 'google' ? 'Google' : 'Apple'} sign-in UI is ready. Enable this provider in Supabase Auth before connecting it.`,
-    )
+  async function handleSocialClick(provider: 'google' | 'apple') {
+    setIsLoading(true)
+    setMessage('')
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: window.location.origin },
+    })
+
+    if (error) {
+      setMessage(error.message)
+      setIsLoading(false)
+    }
   }
 
   return (
     <main className="auth-page">
-      <div className="auth-page-terminal" aria-hidden="true">
-        <FaultyTerminal
-          scale={1.5}
-          gridMul={[2, 1]}
-          digitSize={1.2}
-          timeScale={0.5}
-          pause={false}
-          scanlineIntensity={0.5}
-          glitchAmount={1}
-          flickerAmount={1}
-          noiseAmp={1}
-          chromaticAberration={0}
-          dither={0}
-          curvature={0.1}
-          tint="#8B7CFF"
-          mouseReact
-          mouseStrength={0.5}
-          pageLoadAnimation
-          brightness={0.6}
-        />
-      </div>
+      {!prefersReducedMotion && (
+        <div className="auth-page-terminal" aria-hidden="true">
+          <FaultyTerminal
+            scale={isMobileViewport ? 1 : 1.5}
+            gridMul={isMobileViewport ? [1.35, 1] : [2, 1]}
+            digitSize={isMobileViewport ? 1.5 : 1.2}
+            timeScale={isMobileViewport ? 0.28 : 0.5}
+            pause={false}
+            scanlineIntensity={isMobileViewport ? 0.24 : 0.5}
+            glitchAmount={isMobileViewport ? 0.35 : 1}
+            flickerAmount={isMobileViewport ? 0.25 : 1}
+            noiseAmp={isMobileViewport ? 0.35 : 1}
+            chromaticAberration={0}
+            dither={0}
+            curvature={0.1}
+            tint="#8B7CFF"
+            mouseReact={!isMobileViewport}
+            mouseStrength={isMobileViewport ? 0 : 0.5}
+            pageLoadAnimation
+            brightness={0.6}
+          />
+        </div>
+      )}
+
+      <div className="auth-mobile-glow" aria-hidden="true" />
 
       <section className="auth-shell" aria-label="Account access">
         <section className="auth-brand-panel" aria-hidden="true">
@@ -150,7 +183,7 @@ function AuthForm() {
               <button
                 type="button"
                 className="auth-social-btn"
-                onClick={() => handleSocialClick('google')}
+                onClick={() => void handleSocialClick('google')}
                 disabled={isLoading}
               >
                 Continue with Google
@@ -158,7 +191,7 @@ function AuthForm() {
               <button
                 type="button"
                 className="auth-social-btn"
-                onClick={() => handleSocialClick('apple')}
+                onClick={() => void handleSocialClick('apple')}
                 disabled={isLoading}
               >
                 Continue with Apple
@@ -175,6 +208,10 @@ function AuthForm() {
                 <input
                   type="email"
                   autoComplete="email"
+                  inputMode="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  placeholder="you@example.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required
@@ -190,6 +227,7 @@ function AuthForm() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     minLength={6}
+                    placeholder="At least 6 characters"
                     required
                   />
                   <button
@@ -225,7 +263,7 @@ function AuthForm() {
             )}
 
             {message && (
-              <p className="auth-message" role="status">
+              <p className="auth-message" role="status" aria-live="polite">
                 {message}
               </p>
             )}

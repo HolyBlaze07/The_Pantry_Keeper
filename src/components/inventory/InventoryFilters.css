@@ -115,6 +115,11 @@
 }
 
 @media (max-width: 520px) {
+  .inventory-filters {
+    padding: 0.85rem;
+    border-radius: 18px;
+  }
+
   .inventory-filters__controls {
     grid-template-columns: 1fr;
   }
@@ -122,5 +127,10 @@
   .inventory-filters__footer {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .inventory-filters__footer button {
+    width: 100%;
+    min-height: 46px;
   }
 }

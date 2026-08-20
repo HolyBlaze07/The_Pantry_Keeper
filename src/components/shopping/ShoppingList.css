@@ -228,4 +228,32 @@
   .shopping-list__summary {
     text-align: left;
   }
+
+  .shopping-list {
+    padding: 0.9rem;
+    border-radius: 20px;
+  }
+
+  .shopping-list__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shopping-item__quantity {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .shopping-quantity-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .shopping-quantity-controls button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .shopping-item__button {
+    min-height: 48px;
+  }
 }

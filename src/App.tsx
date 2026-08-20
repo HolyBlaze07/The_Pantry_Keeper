@@ -1104,34 +1104,49 @@ function App() {
           />
         )}
 
-        <PantryDashboard groceries={groceries} />
+        <nav className="mobile-quick-nav" aria-label="Pantry sections">
+          <a href="#dashboard">Overview</a>
+          <a href="#shopping">Shopping</a>
+          <a href="#recipes">Recipes</a>
+          <a href="#inventory">Pantry</a>
+        </nav>
 
-        <ShoppingList
-          groceries={groceries}
-          onMarkPurchased={handleMarkPurchased}
-          onChangeShoppingQuantity={handleChangeShoppingQuantity}
-        />
+        <div id="dashboard" className="app-section-anchor">
+          <PantryDashboard groceries={groceries} />
+        </div>
 
-        <RecipeSuggestions groceries={groceries} />
+        <div id="shopping" className="app-section-anchor">
+          <ShoppingList
+            groceries={groceries}
+            onMarkPurchased={handleMarkPurchased}
+            onChangeShoppingQuantity={handleChangeShoppingQuantity}
+          />
+        </div>
 
-        <InventoryFilters
-          searchQuery={searchQuery}
-          categoryFilter={categoryFilter}
-          tagFilter={tagFilter}
-          locationFilter={locationFilter}
-          statusFilter={statusFilter}
-          sortBy={sortBy}
-          categories={categories}
-          locations={locations}
-          resultCount={visibleGroceries.length}
-          onSearchChange={setSearchQuery}
-          onCategoryChange={setCategoryFilter}
-          onTagChange={setTagFilter}
-          onLocationChange={setLocationFilter}
-          onStatusChange={setStatusFilter}
-          onSortChange={setSortBy}
-          onClearFilters={handleClearFilters}
-        />
+        <div id="recipes" className="app-section-anchor">
+          <RecipeSuggestions groceries={groceries} />
+        </div>
+
+        <div id="inventory" className="app-section-anchor">
+          <InventoryFilters
+            searchQuery={searchQuery}
+            categoryFilter={categoryFilter}
+            tagFilter={tagFilter}
+            locationFilter={locationFilter}
+            statusFilter={statusFilter}
+            sortBy={sortBy}
+            categories={categories}
+            locations={locations}
+            resultCount={visibleGroceries.length}
+            onSearchChange={setSearchQuery}
+            onCategoryChange={setCategoryFilter}
+            onTagChange={setTagFilter}
+            onLocationChange={setLocationFilter}
+            onStatusChange={setStatusFilter}
+            onSortChange={setSortBy}
+            onClearFilters={handleClearFilters}
+          />
+        </div>
 
         <section
           className="collection"
