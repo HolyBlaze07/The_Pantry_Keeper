@@ -114,6 +114,11 @@ function AddGroceryForm({
   const [selectedTags, setSelectedTags] = useState<GroceryTag[]>(
     getInitialTags(groceryToEdit),
   );
+  const [areTagsExpanded, setAreTagsExpanded] = useState(() =>
+    typeof window === "undefined"
+      ? true
+      : !window.matchMedia("(max-width: 700px)").matches,
+  );
   const [category, setCategory] = useState<GroceryCategory>(
     groceryToEdit?.category ?? "Fruit",
   );
@@ -415,22 +420,36 @@ function AddGroceryForm({
           />
         </div>
 
-        <fieldset className="form-field form-field--wide form-tags" aria-label="Item tags">
-          <legend>Tags</legend>
+        <details
+          className="form-field form-field--wide form-tags"
+          open={areTagsExpanded}
+          onToggle={(event) => setAreTagsExpanded(event.currentTarget.open)}
+        >
+          <summary className="form-tags__summary">
+            <span>Tags</span>
+            <span>
+              {selectedTags.length > 0
+                ? `${selectedTags.length} selected`
+                : "Optional"}
+            </span>
+          </summary>
 
-          <div className="form-tags__grid">
-            {GROCERY_TAG_OPTIONS.map((tagOption) => (
-              <label key={tagOption.id} className="form-tags__option">
-                <input
-                  type="checkbox"
-                  checked={selectedTags.includes(tagOption.id)}
-                  onChange={() => handleToggleTag(tagOption.id)}
-                />
-                <span>{tagOption.label}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
+          <fieldset className="form-tags__fieldset">
+            <legend className="form-tags__legend">Item tags</legend>
+            <div className="form-tags__grid">
+              {GROCERY_TAG_OPTIONS.map((tagOption) => (
+                <label key={tagOption.id} className="form-tags__option">
+                  <input
+                    type="checkbox"
+                    checked={selectedTags.includes(tagOption.id)}
+                    onChange={() => handleToggleTag(tagOption.id)}
+                  />
+                  <span>{tagOption.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        </details>
 
           <SpritePicker
             selectedSpriteId={selectedSpriteId}

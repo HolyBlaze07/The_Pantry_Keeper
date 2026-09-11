@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { spriteCatalog } from "../../data/spriteCatalog";
 import "./SpritePicker.css";
 import { NO_SPRITE_ID } from "../../utils/spriteMatcher";
@@ -8,11 +9,27 @@ type SpritePickerProps = {
 };
 
 function SpritePicker({ selectedSpriteId, onSelectSprite }: SpritePickerProps) {
-  return (
-    <fieldset className="sprite-picker">
-      <legend>Choose a food sprite</legend>
+  const [isExpanded, setIsExpanded] = useState(() =>
+    typeof window === "undefined"
+      ? true
+      : !window.matchMedia("(max-width: 700px)").matches,
+  );
 
-      <div className="sprite-picker__grid">
+  return (
+    <details
+      className="sprite-picker"
+      open={isExpanded}
+      onToggle={(event) => setIsExpanded(event.currentTarget.open)}
+    >
+      <summary className="sprite-picker__summary">
+        <span>Choose a food sprite</span>
+        <span aria-hidden="true">{isExpanded ? "▴" : "▾"}</span>
+      </summary>
+
+      <fieldset className="sprite-picker__fieldset">
+        <legend className="sprite-picker__legend">Food sprite options</legend>
+
+        <div className="sprite-picker__grid">
         <button
           type="button"
           className={`sprite-picker__option sprite-picker__option--none ${
@@ -62,8 +79,9 @@ function SpritePicker({ selectedSpriteId, onSelectSprite }: SpritePickerProps) {
             </button>
           );
         })}
-      </div>
-    </fieldset>
+        </div>
+      </fieldset>
+    </details>
   );
 }
 

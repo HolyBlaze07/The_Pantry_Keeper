@@ -1206,6 +1206,7 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
                                 totalCards={group.items.length}
                                 onIncreaseQuantity={handleIncreaseQuantity}
                                 onDecreaseQuantity={handleDecreaseQuantity}
+                                onDeleteGrocery={(grocery) => setGroceryPendingRemoval(grocery)}
                                 onEditGrocery={handleEditGrocery}
                                 onMarkContainerFinished={(grocery) => setGroceryPendingFinish(grocery)}
                                 onDiscardExpired={(grocery) => setGroceryPendingDiscard(grocery)}
@@ -1270,9 +1271,9 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
 
       {groceryPendingRemoval && (
         <ConfirmModal
-          title={`Remove ${groceryPendingRemoval.name}?`}
-          message={`This will remove ${groceryPendingRemoval.name} from your pantry collection.`}
-          confirmLabel="Remove Item"
+          title="Delete grocery card?"
+          message={`Are you sure you want to delete ${groceryPendingRemoval.name}? This cannot be undone.`}
+          confirmLabel="Delete Card"
           onCancel={() => setGroceryPendingRemoval(null)}
           onConfirm={handleConfirmRemoval}
           variant="danger"

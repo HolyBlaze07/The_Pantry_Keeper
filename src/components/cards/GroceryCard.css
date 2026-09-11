@@ -801,6 +801,27 @@ img.grocery-card__sprite {
   outline-offset: 2px;
 }
 
+.grocery-card__delete-button {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #9d4f46;
+  border-radius: 999px;
+  background: #f8d7d2;
+  color: #5b241d;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.grocery-card__delete-button:hover {
+  background: #efc0b8;
+}
+
+.grocery-card__delete-button:focus-visible {
+  outline: 3px solid #d08a81;
+  outline-offset: 2px;
+}
+
 .grocery-card__expiration-message {
   margin-top: 0.15rem;
   color: #765b45;
@@ -1004,12 +1025,33 @@ img.grocery-card__sprite {
     transform: none;
   }
 
-  .grocery-card__holo-bg,
-  .grocery-card__holo-lines,
-  .grocery-card__shadow,
-  .grocery-card__circles,
-  .grocery-card__logo {
-    display: none;
+  .grocery-card__holo-bg {
+    display: block;
+    opacity: 0.18;
+  }
+
+  .grocery-card__holo-lines {
+    display: block;
+    opacity: 0.14;
+  }
+
+  .grocery-card__shadow {
+    display: block;
+    opacity: 0.3;
+  }
+
+  .grocery-card__circles {
+    display: block;
+    opacity: 0.16;
+  }
+
+  .grocery-card:active {
+    --hover-scale: 0.99;
+  }
+
+  .grocery-card:active .grocery-card__holo-bg,
+  .grocery-card:active .grocery-card__holo-lines {
+    opacity: 0.5;
   }
 }
 

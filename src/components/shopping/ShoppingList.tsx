@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { GroceryItem } from "../../types/grocery";
 import "./ShoppingList.css";
 
@@ -29,6 +30,12 @@ function ShoppingList({
   onMarkPurchased,
   onChangeShoppingQuantity,
 }: ShoppingListProps) {
+  const [isExpanded, setIsExpanded] = useState(() =>
+    typeof window === "undefined"
+      ? true
+      : !window.matchMedia("(max-width: 700px)").matches,
+  );
+
   const shoppingItems = groceries
     .map((grocery) => {
       const preferredQuantity =
@@ -99,24 +106,37 @@ function ShoppingList({
             </strong>
           </p>
         </div>
+
+        <button
+          type="button"
+          className="shopping-list__toggle"
+          aria-controls="shopping-list-content"
+          aria-expanded={isExpanded}
+          onClick={() => setIsExpanded((currentValue) => !currentValue)}
+        >
+          {isExpanded ? "Hide List" : "Show List"}
+          <span aria-hidden="true">{isExpanded ? "▴" : "▾"}</span>
+        </button>
       </div>
 
-      {shoppingItems.length === 0 ? (
-        <div className="shopping-list__empty">
-          <p className="shopping-list__empty-icon">
-            ✓
-          </p>
+      {isExpanded && (
+        <div id="shopping-list-content">
+          {shoppingItems.length === 0 ? (
+            <div className="shopping-list__empty">
+              <p className="shopping-list__empty-icon">
+                ✓
+              </p>
 
-          <h3>Your pantry is fully stocked.</h3>
+              <h3>Your pantry is fully stocked.</h3>
 
-          <p>
-            Nothing currently needs to be added to your
-            shopping list.
-          </p>
-        </div>
-      ) : (
-        <div className="shopping-list__grid">
-          {shoppingItems.map(
+              <p>
+                Nothing currently needs to be added to your
+                shopping list.
+              </p>
+            </div>
+          ) : (
+            <div className="shopping-list__grid">
+              {shoppingItems.map(
             ({
               grocery,
               preferredQuantity,
@@ -210,6 +230,8 @@ function ShoppingList({
                 </button>
               </article>
             ),
+              )}
+            </div>
           )}
         </div>
       )}

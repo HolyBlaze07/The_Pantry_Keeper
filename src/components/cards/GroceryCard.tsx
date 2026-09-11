@@ -174,6 +174,7 @@ type GroceryCardProps = {
   totalCards: number;
   onIncreaseQuantity: (groceryId: string) => void;
   onDecreaseQuantity: (groceryId: string) => void;
+  onDeleteGrocery: (grocery: GroceryItem) => void;
   onEditGrocery: (grocery: GroceryItem) => void;
   onMarkContainerFinished: (grocery: GroceryItem) => void;
   onDiscardExpired: (grocery: GroceryItem) => void;
@@ -329,6 +330,7 @@ function GroceryCard({
   totalCards,
   onIncreaseQuantity,
   onDecreaseQuantity,
+  onDeleteGrocery,
   onEditGrocery,
   onMarkContainerFinished,
   onDiscardExpired,
@@ -712,6 +714,14 @@ function GroceryCard({
               >
                 Flip Card
               </button>
+
+              <button
+                type="button"
+                className="grocery-card__delete-button"
+                onClick={() => onDeleteGrocery(item)}
+              >
+                Delete Card
+              </button>
             </div>
           </>
         ) : (
@@ -864,6 +874,14 @@ function GroceryCard({
                 onClick={() => onEditGrocery(item)}
               >
                 Edit Item
+              </button>
+
+              <button
+                type="button"
+                className="grocery-card__delete-button"
+                onClick={() => onDeleteGrocery(item)}
+              >
+                Delete Card
               </button>
             </div>
           </>

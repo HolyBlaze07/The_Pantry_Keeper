@@ -119,14 +119,45 @@
 
 .form-tags {
   margin: 0;
+}
+
+.form-tags__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #b7966c;
+  border-radius: 12px;
+  background: #fffaf0;
+  color: #422b1d;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.form-tags__summary::-webkit-details-marker {
+  display: none;
+}
+
+.form-tags__summary:focus-visible {
+  outline: 3px solid rgba(126, 83, 49, 0.24);
+  outline-offset: 2px;
+}
+
+.form-tags__fieldset {
+  margin: 0.75rem 0 0;
   padding: 0;
   border: 0;
 }
 
-.form-tags legend {
-  margin-bottom: 0.5rem;
-  color: #513824;
-  font-weight: 700;
+.form-tags__legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .form-tags__grid {
