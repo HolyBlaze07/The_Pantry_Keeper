@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
 import FaultyTerminal from './FaultyTerminal'
@@ -15,6 +15,7 @@ import appleSprite from '../../assets/food sprites/fruit_apple.png'
 import './AuthForm.css'
 
 function AuthForm() {
+  const [isMobile, setIsMobile] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -32,6 +33,20 @@ function AuthForm() {
     butterSprite,
     appleSprite,
   ]
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 800px)')
+    const updateIsMobile = () => {
+      setIsMobile(mediaQuery.matches)
+    }
+
+    updateIsMobile()
+    mediaQuery.addEventListener('change', updateIsMobile)
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateIsMobile)
+    }
+  }, [])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -95,6 +110,21 @@ function AuthForm() {
     }
   }
 
+  async function handleGoogleSignIn() {
+    setMessage('')
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    })
+
+    if (error) {
+      setMessage(error.message)
+    }
+  }
+
   function handleSocialClick(provider: 'google' | 'apple') {
     setMessage(
       `${provider === 'google' ? 'Google' : 'Apple'} sign-in UI is ready. Enable this provider in Supabase Auth before connecting it.`,
@@ -105,23 +135,23 @@ function AuthForm() {
     <main className="auth-page">
       <div className="auth-page-terminal" aria-hidden="true">
         <FaultyTerminal
-          scale={1.5}
-          gridMul={[2, 1]}
-          digitSize={1.2}
-          timeScale={0.5}
+          scale={isMobile ? 1.1 : 1.5}
+          gridMul={isMobile ? [1.3, 1] : [2, 1]}
+          digitSize={isMobile ? 1 : 1.2}
+          timeScale={isMobile ? 0.36 : 0.5}
           pause={false}
-          scanlineIntensity={0.5}
-          glitchAmount={1}
-          flickerAmount={1}
-          noiseAmp={1}
+          scanlineIntensity={isMobile ? 0.28 : 0.5}
+          glitchAmount={isMobile ? 0.45 : 1}
+          flickerAmount={isMobile ? 0.4 : 1}
+          noiseAmp={isMobile ? 0.45 : 1}
           chromaticAberration={0}
           dither={0}
-          curvature={0.1}
+          curvature={isMobile ? 0.05 : 0.1}
           tint="#8B7CFF"
-          mouseReact
-          mouseStrength={0.5}
+          mouseReact={!isMobile}
+          mouseStrength={isMobile ? 0.2 : 0.5}
           pageLoadAnimation
-          brightness={0.6}
+          brightness={isMobile ? 0.48 : 0.6}
         />
       </div>
 
@@ -150,7 +180,9 @@ function AuthForm() {
               <button
                 type="button"
                 className="auth-social-btn"
-                onClick={() => handleSocialClick('google')}
+                onClick={() => {
+                  void handleGoogleSignIn()
+                }}
                 disabled={isLoading}
               >
                 Continue with Google

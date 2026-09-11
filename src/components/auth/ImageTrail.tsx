@@ -8,7 +8,7 @@ function lerp(a: number, b: number, n: number): number {
 }
 
 function getLocalPointerPos(
-  event: MouseEvent | TouchEvent,
+  event: MouseEvent | TouchEvent | PointerEvent,
   rect: DOMRect,
 ): { x: number; y: number } {
   let clientX = 0
@@ -92,8 +92,9 @@ class ImageTrailVariant1 {
   private cacheMousePos: { x: number; y: number }
   private rafId: number | null = null
   private destroyed = false
-  private handlePointerMove!: (event: MouseEvent | TouchEvent) => void
-  private initRender!: (event: MouseEvent | TouchEvent) => void
+  private handlePointerMove!: (event: MouseEvent | TouchEvent | PointerEvent) => void
+  private initRender!: (event: MouseEvent | TouchEvent | PointerEvent) => void
+  private isTouchInput = false
 
   constructor(container: HTMLDivElement) {
     this.container = container
@@ -110,24 +111,37 @@ class ImageTrailVariant1 {
     this.lastMousePos = { x: 0, y: 0 }
     this.cacheMousePos = { x: 0, y: 0 }
 
-    const handlePointerMove = (event: MouseEvent | TouchEvent) => {
+    const handlePointerMove = (event: MouseEvent | TouchEvent | PointerEvent) => {
       const rect = this.container.getBoundingClientRect()
+      this.isTouchInput =
+        'touches' in event || ('pointerType' in event && event.pointerType === 'touch')
       this.mousePos = getLocalPointerPos(event, rect)
     }
 
-    this.container.addEventListener('mousemove', handlePointerMove)
-    this.container.addEventListener('touchmove', handlePointerMove)
+    this.container.addEventListener('pointermove', handlePointerMove)
+    this.container.addEventListener('touchmove', handlePointerMove, { passive: true })
 
-    const initRender = (event: MouseEvent | TouchEvent) => {
+    const initRender = (event: MouseEvent | TouchEvent | PointerEvent) => {
       const rect = this.container.getBoundingClientRect()
+      this.isTouchInput =
+        'touches' in event || ('pointerType' in event && event.pointerType === 'touch')
       this.mousePos = getLocalPointerPos(event, rect)
       this.cacheMousePos = { ...this.mousePos }
+      this.lastMousePos = { ...this.mousePos }
+      this.threshold = this.isTouchInput ? 22 : 60
       this.rafId = requestAnimationFrame(() => this.render())
+      this.showNextImage()
+      this.container.removeEventListener('pointerdown', initRender as EventListener)
       this.container.removeEventListener('mousemove', initRender as EventListener)
+      this.container.removeEventListener('touchstart', initRender as EventListener)
       this.container.removeEventListener('touchmove', initRender as EventListener)
     }
 
+    this.container.addEventListener('pointerdown', initRender as EventListener)
     this.container.addEventListener('mousemove', initRender as EventListener)
+    this.container.addEventListener('touchstart', initRender as EventListener, {
+      passive: true,
+    })
     this.container.addEventListener('touchmove', initRender as EventListener)
 
     this.handlePointerMove = handlePointerMove
@@ -207,14 +221,16 @@ class ImageTrailVariant1 {
     }
 
     this.container.removeEventListener(
-      'mousemove',
+      'pointermove',
       this.handlePointerMove as EventListener,
     )
     this.container.removeEventListener(
       'touchmove',
       this.handlePointerMove as EventListener,
     )
+    this.container.removeEventListener('pointerdown', this.initRender as EventListener)
     this.container.removeEventListener('mousemove', this.initRender as EventListener)
+    this.container.removeEventListener('touchstart', this.initRender as EventListener)
     this.container.removeEventListener('touchmove', this.initRender as EventListener)
 
     this.images.forEach((image) => {

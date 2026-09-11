@@ -39,7 +39,7 @@ export function loadGroceries(
     const savedGroceries = localStorage.getItem(STORAGE_KEY);
 
     if (!savedGroceries) {
-      return fallbackGroceries;
+      return [];
     }
 
     const parsedGroceries = JSON.parse(savedGroceries) as GroceryItem[];

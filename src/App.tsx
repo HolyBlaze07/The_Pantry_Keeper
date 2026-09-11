@@ -25,7 +25,7 @@ import { loadGroceries, saveGroceries } from "./utils/inventoryStorage";
 import { remapGroceriesNeedingSprites } from "./utils/spriteMatcher";
 import { buildGroceriesFromPantryNotes } from "./utils/pantryNotesImport";
 import {
-  getGroceries as getCloudGroceries,
+  getGroceries,
   importGroceries as importCloudGroceries,
   syncGroceriesSnapshot,
 } from "./services/groceries";
@@ -46,7 +46,7 @@ const SPRITE_AUTOMAP_VERSION = spriteCatalog
   .join("|");
 
 function initializeGroceries() {
-  const loadedGroceries = loadGroceries(sampleGroceries);
+  const loadedGroceries = loadGroceries([]);
 
   try {
     const appliedVersion = localStorage.getItem(
@@ -333,12 +333,13 @@ function App() {
       setCloudInventoryMessage("");
 
       try {
-        const cloudGroceries = await getCloudGroceries(currentUserId);
+        const cloudGroceries = await getGroceries(currentUserId);
+        
 
         if (isCancelled) {
           return;
         }
-
+console.log("Loaded from Supabase:", cloudGroceries.length);
         if (cloudGroceries.length > 0) {
           skipNextCloudSyncRef.current = true;
           setGroceries(cloudGroceries);
@@ -961,7 +962,21 @@ function App() {
     setCloudInventoryMessage("");
 
     try {
-      await importCloudGroceries(currentUserId, groceries);
+      const existingCloudGroceries = await getGroceries(currentUserId);
+
+      if (existingCloudGroceries.length > 0) {
+        alert(
+          `Your Amealy cloud pantry already contains ${existingCloudGroceries.length} groceries. Import cancelled to prevent duplicates.`,
+        );
+        return;
+      }
+
+      const importedGroceries = await importCloudGroceries(
+        currentUserId,
+        groceries,
+      );
+      skipNextCloudSyncRef.current = true;
+      setGroceries(importedGroceries);
       setIsCloudSyncEnabled(true);
       setNeedsCloudImport(false);
       setCloudInventoryMessage(

@@ -110,19 +110,25 @@ export async function deleteGrocery(userId: string, groceryId: string): Promise<
 export async function importGroceries(
   userId: string,
   groceries: GroceryItem[],
-): Promise<void> {
+): Promise<GroceryItem[]> {
   if (groceries.length === 0) {
-    return;
+    return [];
   }
 
-  const rows = groceries.map((grocery) => toSupabaseRow(userId, grocery));
-  const { error } = await supabase
+  const rows = groceries.map((grocery) => {
+    const { id: _localId, ...row } = toSupabaseRow(userId, grocery);
+    return row;
+  });
+  const { data, error } = await supabase
     .from("groceries")
-    .upsert(rows, { onConflict: "id" });
+    .insert(rows)
+    .select("*");
 
   if (error) {
     throw new Error(error.message);
   }
+
+  return (data as GroceryRow[]).map(fromSupabaseRow);
 }
 
 export async function syncGroceriesSnapshot(
