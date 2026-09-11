@@ -261,4 +261,29 @@
     align-self: stretch;
     justify-content: space-between;
   }
+
+  .shopping-list__grid {
+    display: flex;
+    gap: 0.85rem;
+    margin-inline: -0.25rem;
+    padding: 0.25rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+
+  .shopping-list__grid::-webkit-scrollbar {
+    height: 7px;
+  }
+
+  .shopping-list__grid::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: #b79267;
+  }
+
+  .shopping-item {
+    flex: 0 0 min(84vw, 330px);
+    scroll-snap-align: start;
+  }
 }

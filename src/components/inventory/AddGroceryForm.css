@@ -170,6 +170,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
+  min-width: 0;
   min-height: 42px;
   padding: 0.6rem 0.75rem;
   border: 1px solid #a88865;
@@ -182,10 +183,16 @@
 }
 
 .form-tags__option input {
+  flex: 0 0 auto;
   width: 1rem;
   height: 1rem;
   margin: 0;
   accent-color: #68462f;
+}
+
+.form-tags__option span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .form-tags__option:focus-within {

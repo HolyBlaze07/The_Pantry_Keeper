@@ -72,7 +72,49 @@ export async function getGroceries(userId: string): Promise<GroceryItem[]> {
     throw new Error(error.message);
   }
 
-  return (data as GroceryRow[]).map(fromSupabaseRow);
+  const rows = data as GroceryRow[];
+  const seenGroceries = new Set<string>();
+  const duplicateIds: string[] = [];
+  const uniqueRows = rows.filter((row) => {
+    const fingerprint = JSON.stringify([
+      row.name,
+      row.category,
+      row.quantity,
+      row.preferred_quantity,
+      row.quantity_unit,
+      row.weight,
+      row.weight_unit,
+      row.expiration_date,
+      row.price,
+      row.sprite_id,
+      row.storage_location,
+      row.brand,
+      row.purchased_at,
+      row.date_added,
+    ]);
+
+    if (seenGroceries.has(fingerprint)) {
+      duplicateIds.push(row.id);
+      return false;
+    }
+
+    seenGroceries.add(fingerprint);
+    return true;
+  });
+
+  if (duplicateIds.length > 0) {
+    const { error: cleanupError } = await supabase
+      .from("groceries")
+      .delete()
+      .eq("user_id", userId)
+      .in("id", duplicateIds);
+
+    if (cleanupError) {
+      throw new Error(cleanupError.message);
+    }
+  }
+
+  return uniqueRows.map(fromSupabaseRow);
 }
 
 export async function addGrocery(userId: string, grocery: GroceryItem): Promise<void> {
