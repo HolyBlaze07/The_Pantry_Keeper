@@ -135,6 +135,25 @@ export async function syncGroceriesSnapshot(
   userId: string,
   groceries: GroceryItem[],
 ): Promise<void> {
+  const rows = groceries.map((grocery) => ({
+    id: grocery.id,
+    user_id: userId,
+    name: grocery.name,
+    category: grocery.category,
+    quantity: grocery.quantity,
+    preferred_quantity: grocery.preferredQuantity ?? null,
+    quantity_unit: grocery.quantityUnit,
+    weight: grocery.weight ?? null,
+    weight_unit: grocery.weightUnit ?? null,
+    expiration_date: grocery.expirationDate ?? null,
+    price: grocery.price ?? null,
+    sprite_id: grocery.spriteId ?? null,
+    storage_location: grocery.storageLocation,
+    brand: grocery.brandName ?? null,
+    purchased_at: grocery.storeName ?? null,
+    date_added: grocery.dateAdded,
+  }));
+
   const { data, error } = await supabase
     .from("groceries")
     .select("id")
@@ -160,5 +179,13 @@ export async function syncGroceriesSnapshot(
     }
   }
 
-  await importGroceries(userId, groceries);
+  if (rows.length > 0) {
+    const { error: upsertError } = await supabase
+      .from("groceries")
+      .upsert(rows, { onConflict: "id" });
+
+    if (upsertError) {
+      throw new Error(upsertError.message);
+    }
+  }
 }

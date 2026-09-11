@@ -26,7 +26,6 @@ import { remapGroceriesNeedingSprites } from "./utils/spriteMatcher";
 import { buildGroceriesFromPantryNotes } from "./utils/pantryNotesImport";
 import {
   getGroceries,
-  importGroceries as importCloudGroceries,
   syncGroceriesSnapshot,
 } from "./services/groceries";
 
@@ -133,8 +132,6 @@ function App() {
   const [isCloudLoading, setIsCloudLoading] = useState(false);
   const [hasLoadedCloudInventory, setHasLoadedCloudInventory] = useState(false);
   const [isCloudSyncEnabled, setIsCloudSyncEnabled] = useState(false);
-  const [needsCloudImport, setNeedsCloudImport] = useState(false);
-  const [isImportingCloudInventory, setIsImportingCloudInventory] = useState(false);
   const [cloudInventoryMessage, setCloudInventoryMessage] = useState("");
   const [cloudInventoryError, setCloudInventoryError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -344,7 +341,6 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
           skipNextCloudSyncRef.current = true;
           setGroceries(cloudGroceries);
           setIsCloudSyncEnabled(true);
-          setNeedsCloudImport(false);
           setCloudInventoryMessage(
             `Loaded ${cloudGroceries.length} groceries from your account.`,
           );
@@ -352,7 +348,6 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
           const localGroceries = loadGroceries([]);
           const hasLocalInventory = localGroceries.length > 0;
 
-          setNeedsCloudImport(hasLocalInventory);
           setIsCloudSyncEnabled(!hasLocalInventory);
 
           if (hasLocalInventory) {
@@ -948,51 +943,6 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
     setSortBy("name-ascending");
   }
 
-  async function handleImportExistingInventory() {
-    const userId = user?.id;
-
-    if (!userId) {
-      return;
-    }
-
-    const currentUserId = userId;
-
-    setIsImportingCloudInventory(true);
-    setCloudInventoryError("");
-    setCloudInventoryMessage("");
-
-    try {
-      const existingCloudGroceries = await getGroceries(currentUserId);
-
-      if (existingCloudGroceries.length > 0) {
-        alert(
-          `Your Amealy cloud pantry already contains ${existingCloudGroceries.length} groceries. Import cancelled to prevent duplicates.`,
-        );
-        return;
-      }
-
-      const importedGroceries = await importCloudGroceries(
-        currentUserId,
-        groceries,
-      );
-      skipNextCloudSyncRef.current = true;
-      setGroceries(importedGroceries);
-      setIsCloudSyncEnabled(true);
-      setNeedsCloudImport(false);
-      setCloudInventoryMessage(
-        `Imported ${groceries.length} local groceries to your Supabase account.`,
-      );
-    } catch (error) {
-      setCloudInventoryError(
-        error instanceof Error
-          ? error.message
-          : "Could not import local groceries.",
-      );
-    } finally {
-      setIsImportingCloudInventory(false);
-    }
-  }
-
   if (isAuthLoading || (user !== null && isCloudLoading && !hasLoadedCloudInventory)) {
     return (
       <main className="app">
@@ -1054,6 +1004,7 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
             </p>
           )}
 
+          {/*
           {needsCloudImport && (
             <button
               type="button"
@@ -1068,6 +1019,7 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
                 : "Import Existing Inventory"}
             </button>
           )}
+          */}
 
           <button
             type="button"
