@@ -82,7 +82,7 @@
   position: relative;
   z-index: 4;
   margin: 0 0 14px;
-  color: var(--text-primary);
+  color: var(--purple-bright);
   font: 800 clamp(2rem, 5vw, 2.9rem)/1.05 "Nunito", sans-serif;
   pointer-events: none;
 }
