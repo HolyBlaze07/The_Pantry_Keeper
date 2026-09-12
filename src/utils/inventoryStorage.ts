@@ -1,14 +1,22 @@
-import type { GroceryItem } from "../types/grocery";
+import type { GroceryItem, GroceryTag } from "../types/grocery";
 
 const STORAGE_KEY = "pantry-keeper-groceries";
 
 function normalizeExpirationDate(grocery: GroceryItem): GroceryItem {
+  const normalizedTags = grocery.tags?.map((tag) =>
+    (tag as string) === "allergn" ? ("allergen" as GroceryTag) : tag,
+  );
+
+  const normalizedGrocery = normalizedTags
+    ? { ...grocery, tags: normalizedTags }
+    : grocery;
+
   if (!/heavy whipping cream/i.test(grocery.name)) {
-    return grocery;
+    return normalizedGrocery;
   }
 
   return {
-    ...grocery,
+    ...normalizedGrocery,
     expirationDate: "2026-09-19",
   };
 }

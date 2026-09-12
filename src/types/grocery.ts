@@ -72,7 +72,7 @@ export type GroceryTag =
   | "soy-free"
   | "natural"
   | "pasture-raised"
-  | "allergn"
+  | "allergen"
   | "soy";
 
 export type GroceryTagOption = {
@@ -87,7 +87,7 @@ export const GROCERY_TAG_OPTIONS: readonly GroceryTagOption[] = [
   { id: "soy-free", label: "Soy Free" },
   { id: "natural", label: "Natural" },
   { id: "pasture-raised", label: "Pasture-Raised" },
-  { id: "allergn", label: "Allergn" },
+  { id: "allergen", label: "Allergen" },
   { id: "soy", label: "Soy" },
 ] as const;
 
