@@ -16,11 +16,11 @@ const LEGACY_SPRITE_ID_BY_FILE_NAME: Record<string, string> = {
 
 const spriteModules = import.meta.glob(
   [
-    "../assets/food sprites/*.{png,jpg,jpeg,webp,gif}",
-    "!../assets/food sprites/ChatGPT Image*.png",
-    "!../assets/food sprites/ChatGPT Image*.jpg",
-    "!../assets/food sprites/ChatGPT Image*.jpeg",
-    "!../assets/food sprites/ChatGPT Image*.webp",
+    "../assets/food sprites/**/*.{png,jpg,jpeg,webp,gif}",
+    "!../assets/food sprites/**/ChatGPT Image*.png",
+    "!../assets/food sprites/**/ChatGPT Image*.jpg",
+    "!../assets/food sprites/**/ChatGPT Image*.jpeg",
+    "!../assets/food sprites/**/ChatGPT Image*.webp",
   ],
   {
     eager: true,
@@ -43,16 +43,42 @@ function toGeneratedId(fileName: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export const spriteCatalog: FoodSprite[] = Object.entries(spriteModules)
-  .map(([path, image]) => {
-    const fileNameWithExtension = path.split("/").pop() ?? "";
-    const fileName = fileNameWithExtension.replace(/\.[^.]+$/, "");
-    const legacyId = LEGACY_SPRITE_ID_BY_FILE_NAME[fileName];
+function shouldPreferSprite(existing: FoodSprite, candidate: FoodSprite) {
+  const existingIsNested = existing.image.includes("/FreePixelFood/");
+  const candidateIsNested = candidate.image.includes("/FreePixelFood/");
 
-    return {
-      id: legacyId ?? toGeneratedId(fileName),
-      name: toReadableName(fileName),
-      image,
-    };
-  })
-  .sort((first, second) => first.name.localeCompare(second.name));
+  if (existingIsNested && !candidateIsNested) {
+    return true;
+  }
+
+  if (!existingIsNested && candidateIsNested) {
+    return false;
+  }
+
+  return existing.name.length > candidate.name.length;
+}
+
+export const spriteCatalog: FoodSprite[] = Array.from(
+  Object.entries(spriteModules)
+    .sort(([leftPath], [rightPath]) => leftPath.localeCompare(rightPath))
+    .reduce((catalog, [path, image]) => {
+      const fileNameWithExtension = path.split("/").pop() ?? "";
+      const fileName = fileNameWithExtension.replace(/\.[^.]+$/, "");
+      const legacyId = LEGACY_SPRITE_ID_BY_FILE_NAME[fileName];
+
+      const sprite: FoodSprite = {
+        id: legacyId ?? toGeneratedId(fileName),
+        name: toReadableName(fileName),
+        image,
+      };
+
+      const existing = catalog.get(sprite.id);
+
+      if (!existing || shouldPreferSprite(existing, sprite)) {
+        catalog.set(sprite.id, sprite);
+      }
+
+      return catalog;
+    }, new Map<string, FoodSprite>())
+    .values(),
+).sort((first, second) => first.name.localeCompare(second.name));
