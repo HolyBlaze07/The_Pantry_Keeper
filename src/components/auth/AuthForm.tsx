@@ -125,10 +125,19 @@ function AuthForm() {
     }
   }
 
-  function handleSocialClick(provider: 'google' | 'apple') {
-    setMessage(
-      `${provider === 'google' ? 'Google' : 'Apple'} sign-in UI is ready. Enable this provider in Supabase Auth before connecting it.`,
-    )
+  async function handleGitHubSignIn() {
+    setMessage('')
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    })
+
+    if (error) {
+      setMessage(error.message)
+    }
   }
 
   return (
@@ -190,10 +199,12 @@ function AuthForm() {
               <button
                 type="button"
                 className="auth-social-btn"
-                onClick={() => handleSocialClick('apple')}
+                onClick={() => {
+                  void handleGitHubSignIn()
+                }}
                 disabled={isLoading}
               >
-                Continue with Apple
+                Continue with GitHub
               </button>
             </div>
 

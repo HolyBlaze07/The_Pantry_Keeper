@@ -120,6 +120,7 @@ function RecipeSuggestions({
   const [recipeSource, setRecipeSource] = useState<RecipeSource | null>(null);
   const [savedRecipeBatches, setSavedRecipeBatches] = useState<SavedRecipeBatch[]>([]);
   const [activeSavedBatchId, setActiveSavedBatchId] = useState<string | null>(null);
+  const [showAllSavedBatches, setShowAllSavedBatches] = useState(false);
   const [savedRecipeBank, setSavedRecipeBank] = useState<SavedRecipeEntry[]>([]);
   const [recipeBankDrafts, setRecipeBankDrafts] = useState<Record<string, RecipeBankDraft>>({});
   const [editingRecipeBankEntryId, setEditingRecipeBankEntryId] = useState<string | null>(null);
@@ -409,6 +410,10 @@ function RecipeSuggestions({
     );
   }, [savedRecipeBank]);
 
+  const visibleSavedBatches = showAllSavedBatches
+    ? savedRecipeBatches
+    : savedRecipeBatches.slice(0, 3);
+
   useEffect(() => {
     try {
       const savedHistory = localStorage.getItem(RECIPE_HISTORY_STORAGE_KEY);
@@ -607,6 +612,14 @@ function RecipeSuggestions({
             <button
               type="button"
               className="recipe-history__clear"
+              onClick={() => setShowAllSavedBatches((currentValue) => !currentValue)}
+            >
+              {showAllSavedBatches ? "Show Less" : "View All"}
+            </button>
+
+            <button
+              type="button"
+              className="recipe-history__clear"
               onClick={handleClearSavedBatches}
             >
               Clear History
@@ -614,7 +627,7 @@ function RecipeSuggestions({
           </div>
 
           <div className="recipe-history__list">
-            {savedRecipeBatches.map((batch) => (
+            {visibleSavedBatches.map((batch) => (
               <button
                 key={batch.id}
                 type="button"
@@ -692,6 +705,12 @@ function RecipeSuggestions({
               <h3>{recipe.title}</h3>
               <p>{recipe.description}</p>
 
+              <p className="recipe-card__ingredients-preview">
+                Pantry: {recipe.inventoryIngredients.slice(0, 3).join(", ") || "None"}
+                {recipe.inventoryIngredients.length > 3 &&
+                  ` +${recipe.inventoryIngredients.length - 3} more`}
+              </p>
+
               <button
                 type="button"
                 className="recipe-card__save"
@@ -712,43 +731,42 @@ function RecipeSuggestions({
                     : "Save To Recipe Bank"}
               </button>
 
-              <h4>Already in your pantry</h4>
-              <ul>
-                {recipe.inventoryIngredients.map(
-                  (ingredient) => (
-                    <li key={ingredient}>
-                      {ingredient}
-                    </li>
-                  ),
-                )}
-              </ul>
+              <details className="recipe-card__details">
+                <summary>View Recipe</summary>
 
-              <h4>You may need</h4>
+                <details>
+                  <summary>Already in Your Pantry</summary>
+                  <ul>
+                    {recipe.inventoryIngredients.map((ingredient) => (
+                      <li key={ingredient}>{ingredient}</li>
+                    ))}
+                  </ul>
+                </details>
 
-              {recipe.missingIngredients.length > 0 ? (
-                <ul>
-                  {recipe.missingIngredients.map(
-                    (ingredient) => (
-                      <li key={ingredient}>
-                        {ingredient}
-                      </li>
-                    ),
+                <details>
+                  <summary>You May Need</summary>
+                  {recipe.missingIngredients.length > 0 ? (
+                    <ul>
+                      {recipe.missingIngredients.map((ingredient) => (
+                        <li key={ingredient}>{ingredient}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>You already have everything listed.</p>
                   )}
-                </ul>
-              ) : (
-                <p>You already have everything listed.</p>
-              )}
+                </details>
 
-              <h4>Instructions</h4>
-              <ol>
-                {recipe.instructions.map(
-                  (instruction, index) => (
-                    <li key={`${recipe.title}-${index}`}>
-                      {instruction}
-                    </li>
-                  ),
-                )}
-              </ol>
+                <details>
+                  <summary>Instructions</summary>
+                  <ol>
+                    {recipe.instructions.map((instruction, instructionIndex) => (
+                      <li key={`${recipe.title}-${instructionIndex}`}>
+                        {instruction}
+                      </li>
+                    ))}
+                  </ol>
+                </details>
+              </details>
             </article>
           ))}
         </div>
@@ -804,6 +822,12 @@ function RecipeSuggestions({
                 <h4>{recipeEntry.recipe.title}</h4>
                 <p>{recipeEntry.recipe.description}</p>
 
+                {!isEditing && (
+                  <p className="recipe-bank-card__notes-preview">
+                    {displayedNotes.trim() || "No cooking notes yet."}
+                  </p>
+                )}
+
                 <div className="recipe-bank-card__actions">
                   {isEditing ? (
                     <button
@@ -846,17 +870,20 @@ function RecipeSuggestions({
                   ))}
                 </div>
 
-                <label className="recipe-bank-card__notes-label" htmlFor={`recipe-notes-${recipeEntry.id}`}>
-                  Notes after cooking
-                </label>
-                <textarea
-                  id={`recipe-notes-${recipeEntry.id}`}
-                  value={displayedNotes}
-                  onChange={(event) => handleDraftRecipeNotes(recipeEntry.id, event.target.value)}
-                  placeholder="Example: Loved the pancakes. Made the berry and peach compote more tart than sweet."
-                  rows={3}
-                  readOnly={!isEditing}
-                />
+                {isEditing && (
+                  <>
+                    <label className="recipe-bank-card__notes-label" htmlFor={`recipe-notes-${recipeEntry.id}`}>
+                      Notes after cooking
+                    </label>
+                    <textarea
+                      id={`recipe-notes-${recipeEntry.id}`}
+                      value={displayedNotes}
+                      onChange={(event) => handleDraftRecipeNotes(recipeEntry.id, event.target.value)}
+                      placeholder="Example: Loved the pancakes. Made the berry and peach compote more tart than sweet."
+                      rows={3}
+                    />
+                  </>
+                )}
 
                 <button
                   type="button"
