@@ -957,6 +957,10 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
     setSortBy("name-ascending");
   }
 
+  void handleLoadHomeInventory;
+  void handleRefreshSpriteMatches;
+  void handleRecoverFromPantryNotes;
+
   if (window.location.pathname === PRIVACY_POLICY_PATH) {
     return (
       <main className="app">
@@ -1254,46 +1258,6 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
           </div>
         </section>
 
-        <section className="app-settings" aria-label="Inventory settings">
-          <p className="app-settings__title">Inventory settings</p>
-
-          <p className="app-settings__description">
-            Load all 91 active items from your pantry, cabinets, seasonings,
-            and fridge. This replaces the inventory currently saved in the app.
-          </p>
-
-          <button
-            type="button"
-            className="add-grocery-button"
-            onClick={handleLoadHomeInventory}
-          >
-            Load My Home Inventory
-          </button>
-
-          <button
-            type="button"
-            className="app-settings__secondary-button"
-            onClick={handleRefreshSpriteMatches}
-          >
-            Refresh Missing Sprite Matches
-          </button>
-
-          <button
-            type="button"
-            className="app-settings__secondary-button"
-            onClick={handleRecoverFromPantryNotes}
-          >
-            Recover Missing Items From Pantry Notes
-          </button>
-
-          <button
-            type="button"
-            className="app-settings__reset-button"
-            onClick={() => setIsResetConfirmOpen(true)}
-          >
-            Reset Inventory
-          </button>
-        </section>
       </div>
 
       {groceryPendingRemoval && (
