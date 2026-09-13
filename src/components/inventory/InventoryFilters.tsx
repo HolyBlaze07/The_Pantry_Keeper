@@ -70,7 +70,7 @@ function InventoryFilters({
         <input
           id="grocery-search"
           type="search"
-          placeholder="Search groceries..."
+          placeholder="Search groceries, brands, or stores..."
           value={searchQuery}
           onChange={(event) =>
             onSearchChange(event.target.value)

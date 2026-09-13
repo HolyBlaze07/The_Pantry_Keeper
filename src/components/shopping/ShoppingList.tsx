@@ -2,8 +2,12 @@ import { useState } from "react";
 import type { GroceryItem } from "../../types/grocery";
 import "./ShoppingList.css";
 
+type ShoppingListGroupBy = "none" | "store";
+
 type ShoppingListProps = {
   groceries: GroceryItem[];
+  groupBy: ShoppingListGroupBy;
+  onGroupByChange: (value: ShoppingListGroupBy) => void;
   onMarkPurchased: (groceryId: string) => void;
   onChangeShoppingQuantity: (
     groceryId: string,
@@ -27,6 +31,8 @@ function formatQuantity(value: number) {
 
 function ShoppingList({
   groceries,
+  groupBy,
+  onGroupByChange,
   onMarkPurchased,
   onChangeShoppingQuantity,
 }: ShoppingListProps) {
@@ -74,6 +80,111 @@ function ShoppingList({
     0,
   );
 
+  const groupedShoppingItems = Array.from(
+    shoppingItems.reduce((groups, item) => {
+      const storeLabel =
+        item.grocery.storeName?.trim() || "Unspecified store";
+
+      const existingGroup = groups.get(storeLabel);
+
+      if (existingGroup) {
+        existingGroup.items.push(item);
+        existingGroup.totalCost += item.estimatedCost;
+        return groups;
+      }
+
+      groups.set(storeLabel, {
+        label: storeLabel,
+        items: [item],
+        totalCost: item.estimatedCost,
+      });
+
+      return groups;
+    }, new Map<string, { label: string; items: typeof shoppingItems; totalCost: number }>()),
+  ).sort((first, second) => first[0].localeCompare(second[0]));
+
+  const renderShoppingItem = ({
+    grocery,
+    preferredQuantity,
+    automaticQuantityNeeded,
+    purchaseQuantity,
+    estimatedCost,
+  }: (typeof shoppingItems)[number]) => (
+    <article key={grocery.id} className="shopping-item">
+      <div className="shopping-item__header">
+        <div>
+          <p className="shopping-item__category">{grocery.category}</p>
+          <h3>{grocery.name}</h3>
+        </div>
+
+        <span className="shopping-item__suggested">
+          {automaticQuantityNeeded > 0
+            ? `Suggested ${formatQuantity(automaticQuantityNeeded)}`
+            : "Manual"}
+        </span>
+      </div>
+
+      <dl className="shopping-item__details">
+        <div>
+          <dt>Current</dt>
+          <dd>
+            {formatQuantity(grocery.quantity)} {grocery.quantityUnit}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Preferred</dt>
+          <dd>
+            {formatQuantity(preferredQuantity)} {grocery.quantityUnit}
+          </dd>
+        </div>
+
+        <div className="shopping-item__buy-row">
+          <span>Buy</span>
+
+          <div className="shopping-quantity-controls">
+            <button
+              type="button"
+              onClick={() => onChangeShoppingQuantity(grocery.id, -1)}
+              aria-label={`Decrease ${grocery.name} shopping quantity`}
+            >
+              −
+            </button>
+
+            <strong>
+              {formatQuantity(purchaseQuantity)} {grocery.quantityUnit}
+            </strong>
+
+            <button
+              type="button"
+              onClick={() => onChangeShoppingQuantity(grocery.id, 1)}
+              aria-label={`Increase ${grocery.name} shopping quantity`}
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <dt>Estimated cost</dt>
+          <dd>
+            {grocery.price !== undefined
+              ? `$${estimatedCost.toFixed(2)}`
+              : "N/A"}
+          </dd>
+        </div>
+      </dl>
+
+      <button
+        type="button"
+        className="shopping-item__button"
+        onClick={() => onMarkPurchased(grocery.id)}
+      >
+        Mark Purchased
+      </button>
+    </article>
+  );
+
   return (
     <section
       className="shopping-list"
@@ -107,6 +218,24 @@ function ShoppingList({
           </p>
         </div>
 
+        <div className="shopping-list__filter-row">
+          <label htmlFor="shopping-list-grouping" className="shopping-list__filter-label">
+            Group by
+          </label>
+
+          <select
+            id="shopping-list-grouping"
+            className="shopping-list__filter"
+            value={groupBy}
+            onChange={(event) =>
+              onGroupByChange(event.target.value as ShoppingListGroupBy)
+            }
+          >
+            <option value="none">No grouping</option>
+            <option value="store">Store</option>
+          </select>
+        </div>
+
         <button
           type="button"
           className="shopping-list__toggle"
@@ -134,103 +263,26 @@ function ShoppingList({
                 shopping list.
               </p>
             </div>
+          ) : groupBy === "store" ? (
+            <div className="shopping-store-groups">
+              {groupedShoppingItems.map(([storeLabel, group]) => (
+                <div key={storeLabel} className="shopping-store-group">
+                  <div className="shopping-store-group__header">
+                    <h3>{storeLabel}</h3>
+                    <span>
+                      {group.items.length} {group.items.length === 1 ? "item" : "items"} · ${group.totalCost.toFixed(2)}
+                    </span>
+                  </div>
+
+                  <div className="shopping-list__grid">
+                    {group.items.map((item) => renderShoppingItem(item))}
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="shopping-list__grid">
-              {shoppingItems.map(
-            ({
-              grocery,
-              preferredQuantity,
-              automaticQuantityNeeded,
-              purchaseQuantity,
-              estimatedCost,
-            }) => (
-              <article
-                key={grocery.id}
-                className="shopping-item"
-              >
-                <div className="shopping-item__heading">
-                  <div>
-                    <p className="shopping-item__category">
-                      {grocery.category}
-                    </p>
-
-                    <h3>{grocery.name}</h3>
-                  </div>
-
-                  <span className="shopping-item__need">
-                    {automaticQuantityNeeded > 0
-                      ? `Suggested ${formatQuantity(automaticQuantityNeeded)}`
-                      : "Manually Added"}
-                  </span>
-                </div>
-
-                <dl className="shopping-item__details">
-                  <div>
-                    <dt>Current</dt>
-                    <dd>
-                      {formatQuantity(grocery.quantity)} {grocery.quantityUnit}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt>Preferred</dt>
-                    <dd>
-                      {formatQuantity(preferredQuantity)} {grocery.quantityUnit}
-                    </dd>
-                  </div>
-
-                  <div className="shopping-item__quantity">
-                    <span>Buy</span>
-
-                    <div className="shopping-quantity-controls">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onChangeShoppingQuantity(grocery.id, -1)
-                        }
-                        aria-label={`Decrease ${grocery.name} shopping quantity`}
-                      >
-                        −
-                      </button>
-
-                      <strong>
-                        {formatQuantity(purchaseQuantity)} {grocery.quantityUnit}
-                      </strong>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          onChangeShoppingQuantity(grocery.id, 1)
-                        }
-                        aria-label={`Increase ${grocery.name} shopping quantity`}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <dt>Estimated cost</dt>
-                    <dd>
-                      {grocery.price !== undefined
-                        ? `$${estimatedCost.toFixed(2)}`
-                        : "Not available"}
-                    </dd>
-                  </div>
-                </dl>
-
-                <button
-                  type="button"
-                  className="shopping-item__button"
-                  onClick={() =>
-                    onMarkPurchased(grocery.id)
-                  }
-                >
-                  Mark Purchased
-                </button>
-              </article>
-            ),
-              )}
+              {shoppingItems.map((item) => renderShoppingItem(item))}
             </div>
           )}
         </div>
@@ -240,3 +292,6 @@ function ShoppingList({
 }
 
 export default ShoppingList;
+
+
+

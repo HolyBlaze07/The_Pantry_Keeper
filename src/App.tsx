@@ -11,6 +11,8 @@ import ShoppingList from "./components/shopping/ShoppingList";
 import RecipeSuggestions from "./components/recipes/RecipeSuggestions";
 import ConfirmModal from "./components/ui/ConfirmModal";
 import AuthForm from "./components/auth/AuthForm";
+import { Footer } from "./components/ui/Footer";
+import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { sampleGroceries } from "./data/sampleGroceries";
 import { homeInventory } from "./data/homeInventory";
 import { spriteCatalog } from "./data/spriteCatalog";
@@ -43,6 +45,7 @@ const SPRITE_AUTOMAP_VERSION = spriteCatalog
   .map((sprite) => sprite.id)
   .sort()
   .join("|");
+const PRIVACY_POLICY_PATH = "/privacy-policy";
 
 function initializeGroceries() {
   const loadedGroceries = loadGroceries([]);
@@ -140,6 +143,8 @@ function App() {
   const [locationFilter, setLocationFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState<InventorySort>("name-ascending");
+  const [shoppingListGroupBy, setShoppingListGroupBy] =
+    useState<"none" | "store">("none");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [groceryToEdit, setGroceryToEdit] = useState<GroceryItem | null>(null);
   const [groceryToPersonalize, setGroceryToPersonalize] =
@@ -175,10 +180,19 @@ function App() {
     const normalizedSearch = searchQuery.trim().toLowerCase();
 
     const filteredGroceries = groceries.filter((grocery) => {
+      const searchableText = [
+        grocery.name,
+        grocery.category,
+        grocery.brandName ?? "",
+        grocery.storeName ?? "",
+        grocery.storageLocation,
+        ...(grocery.tags ?? []),
+      ]
+        .join(" ")
+        .toLowerCase();
+
       const matchesSearch =
-        normalizedSearch === "" ||
-        grocery.name.toLowerCase().includes(normalizedSearch) ||
-        grocery.category.toLowerCase().includes(normalizedSearch);
+        normalizedSearch === "" || searchableText.includes(normalizedSearch);
 
       const matchesCategory =
         categoryFilter === "all" || grocery.category === categoryFilter;
@@ -943,6 +957,17 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
     setSortBy("name-ascending");
   }
 
+  if (window.location.pathname === PRIVACY_POLICY_PATH) {
+    return (
+      <main className="app">
+        <a className="app-back-button" href="/">
+          ← Back to App
+        </a>
+        <PrivacyPolicy />
+      </main>
+    );
+  }
+
   if (isAuthLoading || (user !== null && isCloudLoading && !hasLoadedCloudInventory)) {
     return (
       <main className="app">
@@ -1075,6 +1100,8 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
 
         <ShoppingList
           groceries={groceries}
+          groupBy={shoppingListGroupBy}
+          onGroupByChange={setShoppingListGroupBy}
           onMarkPurchased={handleMarkPurchased}
           onChangeShoppingQuantity={handleChangeShoppingQuantity}
         />
@@ -1329,6 +1356,8 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
       >
         ↑ Top
       </button>
+
+      <Footer />
 
     </main>
   );

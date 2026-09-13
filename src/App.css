@@ -15,7 +15,7 @@
 .app-snow {
   position: fixed;
   inset: 0;
-  pointer-events: auto;
+  pointer-events: none;
   z-index: 1;
 }
 
@@ -28,6 +28,11 @@
 }
 
 .app-content {
+  position: relative;
+  z-index: 2;
+}
+
+.footer {
   position: relative;
   z-index: 2;
 }
@@ -404,6 +409,30 @@
 }
 
 .back-to-top-button:focus-visible {
+  outline: 3px solid rgba(126, 83, 49, 0.35);
+  outline-offset: 3px;
+}
+
+.app-back-button {
+  display: block;
+  margin: 1rem auto 2rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid #6d4b34;
+  border-radius: 999px;
+  background: rgba(250, 239, 208, 0.95);
+  color: #4a3122;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(64, 41, 28, 0.15);
+  transition: background 160ms ease;
+}
+
+.app-back-button:hover {
+  background: #f0deb4;
+}
+
+.app-back-button:focus-visible {
   outline: 3px solid rgba(126, 83, 49, 0.35);
   outline-offset: 3px;
 }
