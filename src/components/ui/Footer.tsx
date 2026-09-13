@@ -9,6 +9,9 @@ export function Footer() {
           <a className="footer__link" href="/privacy-policy">
             Privacy Policy
           </a>
+          <a className="footer__link" href="/terms-of-use">
+            Terms of Use
+          </a>
         </nav>
       </div>
     </footer>

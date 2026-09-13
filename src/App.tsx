@@ -13,6 +13,7 @@ import ConfirmModal from "./components/ui/ConfirmModal";
 import AuthForm from "./components/auth/AuthForm";
 import { Footer } from "./components/ui/Footer";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
+import { TermsOfUse } from "./pages/TermsOfUse";
 import { sampleGroceries } from "./data/sampleGroceries";
 import { homeInventory } from "./data/homeInventory";
 import { spriteCatalog } from "./data/spriteCatalog";
@@ -46,6 +47,7 @@ const SPRITE_AUTOMAP_VERSION = spriteCatalog
   .sort()
   .join("|");
 const PRIVACY_POLICY_PATH = "/privacy-policy";
+const TERMS_OF_USE_PATH = "/terms-of-use";
 
 function initializeGroceries() {
   const loadedGroceries = loadGroceries([]);
@@ -968,6 +970,17 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
           ← Back to App
         </a>
         <PrivacyPolicy />
+      </main>
+    );
+  }
+
+  if (window.location.pathname === TERMS_OF_USE_PATH) {
+    return (
+      <main className="app">
+        <a className="app-back-button" href="/">
+          ← Back to App
+        </a>
+        <TermsOfUse />
       </main>
     );
   }
