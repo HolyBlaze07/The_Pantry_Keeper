@@ -361,20 +361,12 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
             `Loaded ${cloudGroceries.length} groceries from your account.`,
           );
         } else {
-          const localGroceries = loadGroceries([]);
-          const hasLocalInventory = localGroceries.length > 0;
-
-          setIsCloudSyncEnabled(!hasLocalInventory);
-
-          if (hasLocalInventory) {
-            setCloudInventoryMessage(
-              "Cloud inventory is empty. Import your current local inventory when ready.",
-            );
-          } else {
-            setCloudInventoryMessage(
-              "Cloud inventory is empty. New changes will sync to your account.",
-            );
-          }
+          skipNextCloudSyncRef.current = true;
+          setGroceries([]);
+          setIsCloudSyncEnabled(true);
+          setCloudInventoryMessage(
+            "Your pantry is empty. Add your first grocery to get started.",
+          );
         }
 
         setHasLoadedCloudInventory(true);
