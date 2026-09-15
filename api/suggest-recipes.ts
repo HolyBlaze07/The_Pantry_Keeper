@@ -88,46 +88,42 @@ export default async function handler(
 
   try {
     const inventoryText = groceries
+      .filter((grocery) => grocery.quantity > 0)
       .map((grocery) => {
         const expiration = grocery.expirationDate
-          ? `, expires ${grocery.expirationDate}`
+          ? ` | expires: ${grocery.expirationDate}`
           : "";
 
-        const category = grocery.category
-          ? `, category ${grocery.category}`
-          : "";
-
-        const location = grocery.storageLocation
-          ? `, stored in ${grocery.storageLocation}`
-          : "";
-
-        return `${grocery.name}: ${grocery.quantity} ${grocery.quantityUnit}${expiration}${category}${location}`;
+        return `${grocery.name} | ${grocery.quantity} ${grocery.quantityUnit}${expiration}`;
       })
       .join("\n");
 
     const aiResponse = await client.responses.create({
-      model: "gpt-5-mini",
+      model: "gpt-5.6-luna",
+      reasoning: {
+        effort: "none",
+      },
+      max_output_tokens: 1400,
       input: `
-You are a practical household recipe assistant.
+You are Amealy, a practical household recipe assistant.
 
-Suggest exactly 3 realistic recipes based primarily on the
-following grocery inventory:
+Create exactly 3 beginner-friendly recipes using primarily the available
+ingredients below.
 
+AVAILABLE INVENTORY:
 ${inventoryText}
 
-Rules:
-- Do not recommend using expired items.
-- Prioritize ingredients that expire today first.
-- Prioritize near-expiration ingredients second.
-- Use fresh ingredients when helpful.
-- Do not assume the user owns ingredients not listed.
-- Basic water, salt, pepper, and cooking oil may be treated as pantry basics.
+RULES:
+- Never use expired ingredients.
+- Prioritize ingredients expiring today, then ingredients expiring soon.
+- Prefer ingredients already available.
+- Water, salt, pepper, and cooking oil are pantry basics.
 - Clearly separate available ingredients from missing ingredients.
-- Keep recipes beginner-friendly.
-- Do not claim exact nutritional or food-safety information.
+- Keep instructions concise: maximum 6 steps per recipe.
+- Keep descriptions to 1-2 sentences.
 - Return JSON only.
 
-Return this structure:
+Return exactly:
 
 {
   "recipes": [
