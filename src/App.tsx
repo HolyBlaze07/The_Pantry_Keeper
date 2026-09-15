@@ -13,6 +13,7 @@ import ConfirmModal from "./components/ui/ConfirmModal";
 import AuthForm from "./components/auth/AuthForm";
 import { Footer } from "./components/ui/Footer";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
+import { SetPassword } from "./pages/SetPassword";
 import { TermsOfUse } from "./pages/TermsOfUse";
 import { sampleGroceries } from "./data/sampleGroceries";
 import { homeInventory } from "./data/homeInventory";
@@ -964,6 +965,10 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
         <PrivacyPolicy />
       </main>
     );
+  }
+
+  if (window.location.pathname === "/set-password") {
+    return <SetPassword />;
   }
 
   if (window.location.pathname === TERMS_OF_USE_PATH) {
