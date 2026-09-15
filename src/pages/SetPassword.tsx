@@ -99,6 +99,25 @@ export function SetPassword() {
         throw error;
       }
 
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        const joinedResponse = await fetch("/api/mark-tester-joined", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+
+        if (!joinedResponse.ok) {
+          console.error(
+            "Password was created, but beta tester status could not be updated.",
+          );
+        }
+      }
+
       setMessage("Password created successfully!");
 
       window.setTimeout(() => {
