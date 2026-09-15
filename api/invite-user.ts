@@ -8,7 +8,13 @@ if (!supabaseUrl || !supabaseSecretKey || !inviteAdminKey) {
 	throw new Error("Missing server environment variables.");
 }
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseSecretKey);
+const supabaseAdmin = createClient(supabaseUrl, supabaseSecretKey, {
+	auth: {
+		persistSession: false,
+		autoRefreshToken: false,
+		detectSessionInUrl: false,
+	},
+});
 
 export default async function handler(request: any, response: any) {
 	if (request.method !== "POST") {
