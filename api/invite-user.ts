@@ -155,6 +155,28 @@ export default async function handler(request: any, response: any) {
 		});
 	}
 
+	const { error: testerRecordError } = await supabaseAdmin
+		.from("beta_testers")
+		.upsert(
+			{
+				email: testerEmail.toLowerCase(),
+				status: "invited",
+				invited_at: new Date().toISOString(),
+			},
+			{
+				onConflict: "email",
+			},
+		);
+
+	if (testerRecordError) {
+		console.error("Could not save beta tester record:", testerRecordError);
+
+		return response.status(500).json({
+			error:
+				"The invitation emails were sent, but the tester could not be added to the beta tester dashboard.",
+		});
+	}
+
 	return response.status(200).json({
 		message:
 			"Invitation and beta welcome email sent successfully.",

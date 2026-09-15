@@ -141,6 +141,7 @@ function App() {
   const [isCloudSyncEnabled, setIsCloudSyncEnabled] = useState(false);
   const [cloudInventoryMessage, setCloudInventoryMessage] = useState("");
   const [cloudInventoryError, setCloudInventoryError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
@@ -390,6 +391,34 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
     }
 
     void loadCloudInventory();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+
+    const currentUserId = user.id;
+    let isCancelled = false;
+
+    async function checkAdminAccess() {
+      const { data, error } = await supabase
+        .from("admin_users")
+        .select("id")
+        .eq("id", currentUserId)
+        .maybeSingle();
+
+      if (!isCancelled) {
+        setIsAdmin(!error && Boolean(data));
+      }
+    }
+
+    void checkAdminAccess();
 
     return () => {
       isCancelled = true;
@@ -1064,6 +1093,12 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
             </button>
           )}
           */}
+
+          {isAdmin && (
+            <a className="app-settings__secondary-button" href="/admin">
+              Admin
+            </a>
+          )}
 
           <button
             type="button"
