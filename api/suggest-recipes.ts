@@ -99,47 +99,78 @@ export default async function handler(
       .join("\n");
 
     const aiResponse = await client.responses.create({
-      model: "gpt-5.6-luna",
+      model: "gpt-5.4-mini",
       reasoning: {
         effort: "none",
       },
       max_output_tokens: 1400,
-      input: `
+      instructions: `
 You are Amealy, a practical household recipe assistant.
 
-Create exactly 3 beginner-friendly recipes using primarily the available
-ingredients below.
-
-AVAILABLE INVENTORY:
-${inventoryText}
+Create exactly 3 realistic, beginner-friendly recipes.
 
 RULES:
 - Never use expired ingredients.
-- Prioritize ingredients expiring today, then ingredients expiring soon.
+- Prioritize ingredients expiring today.
+- Prioritize near-expiration ingredients next.
 - Prefer ingredients already available.
 - Water, salt, pepper, and cooking oil are pantry basics.
-- Clearly separate available ingredients from missing ingredients.
-- Keep instructions concise: maximum 6 steps per recipe.
-- Keep descriptions to 1-2 sentences.
-- Return JSON only.
-
-Return exactly:
-
-{
-  "recipes": [
-    {
-      "id": "string",
-      "title": "string",
-      "description": "string",
-      "inventoryIngredients": ["string"],
-      "missingIngredients": ["string"],
-      "instructions": ["string"],
-      "prepTime": "string",
-      "cookTime": "string"
-    }
-  ]
-}
       `,
+      input: `Available grocery inventory:\n\n${inventoryText}`,
+      text: {
+        verbosity: "low",
+        format: {
+          type: "json_schema",
+          name: "recipe_suggestions",
+          strict: true,
+          schema: {
+            type: "object",
+            properties: {
+              recipes: {
+                type: "array",
+                minItems: 3,
+                maxItems: 3,
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    title: { type: "string" },
+                    description: { type: "string" },
+                    inventoryIngredients: {
+                      type: "array",
+                      items: { type: "string" },
+                    },
+                    missingIngredients: {
+                      type: "array",
+                      items: { type: "string" },
+                    },
+                    instructions: {
+                      type: "array",
+                      maxItems: 6,
+                      items: { type: "string" },
+                    },
+                    prepTime: { type: "string" },
+                    cookTime: { type: "string" },
+                  },
+                  required: [
+                    "id",
+                    "title",
+                    "description",
+                    "inventoryIngredients",
+                    "missingIngredients",
+                    "instructions",
+                    "prepTime",
+                    "cookTime",
+                  ],
+                  additionalProperties: false,
+                },
+              },
+            },
+            required: ["recipes"],
+            additionalProperties: false,
+          },
+        },
+      },
     });
 
     const parsedResult = JSON.parse(aiResponse.output_text) as {
@@ -187,6 +218,12 @@ Return exactly:
         };
       })
       .filter((recipe): recipe is NonNullable<typeof recipe> => recipe !== null);
+
+    console.log("Recipe AI usage:", {
+      inputTokens: aiResponse.usage?.input_tokens,
+      outputTokens: aiResponse.usage?.output_tokens,
+      totalTokens: aiResponse.usage?.total_tokens,
+    });
 
     return response.status(200).json({ recipes });
   } catch (error) {
