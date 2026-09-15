@@ -15,6 +15,7 @@ import { Footer } from "./components/ui/Footer";
 import { PrivacyPolicy } from "./pages/PrivacyPolicy";
 import { SetPassword } from "./pages/SetPassword";
 import { TermsOfUse } from "./pages/TermsOfUse";
+import Admin from "./pages/Admin";
 import { sampleGroceries } from "./data/sampleGroceries";
 import { homeInventory } from "./data/homeInventory";
 import { spriteCatalog } from "./data/spriteCatalog";
@@ -955,6 +956,10 @@ console.log("Loaded from Supabase:", cloudGroceries.length);
   void handleLoadHomeInventory;
   void handleRefreshSpriteMatches;
   void handleRecoverFromPantryNotes;
+
+  if (window.location.pathname === "/admin") {
+    return <Admin />;
+  }
 
   if (window.location.pathname === PRIVACY_POLICY_PATH) {
     return (

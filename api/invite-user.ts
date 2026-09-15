@@ -3,13 +3,11 @@ import { Resend } from "resend";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
-const inviteAdminKey = process.env.AMEALY_INVITE_ADMIN_KEY;
 const resendApiKey = process.env.RESEND_API_KEY;
 
 if (
 	!supabaseUrl ||
 	!supabaseSecretKey ||
-	!inviteAdminKey ||
 	!resendApiKey
 ) {
 	throw new Error("Missing server environment variables.");
@@ -32,12 +30,46 @@ export default async function handler(request: any, response: any) {
 		});
 	}
 
-	const providedAdminKey =
-		request.headers["x-amealy-admin-key"];
+	const authorizationHeader = request.headers.authorization;
 
-	if (providedAdminKey !== inviteAdminKey) {
+	if (
+		!authorizationHeader ||
+		!authorizationHeader.startsWith("Bearer ")
+	) {
 		return response.status(401).json({
 			error: "Unauthorized.",
+		});
+	}
+
+	const accessToken = authorizationHeader.replace("Bearer ", "");
+
+	const {
+		data: { user },
+		error: userError,
+	} = await supabaseAdmin.auth.getUser(accessToken);
+
+	if (userError || !user) {
+		return response.status(401).json({
+			error: "Invalid or expired session.",
+		});
+	}
+
+	const { data: adminUser, error: adminError } =
+		await supabaseAdmin
+			.from("admin_users")
+			.select("id")
+			.eq("id", user.id)
+			.maybeSingle();
+
+	if (adminError) {
+		return response.status(500).json({
+			error: "Could not verify admin access.",
+		});
+	}
+
+	if (!adminUser) {
+		return response.status(403).json({
+			error: "Admin access required.",
 		});
 	}
 
