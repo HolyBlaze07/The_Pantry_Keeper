@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import "./Admin.css";
 
 export default function Admin() {
   const [isLoading, setIsLoading] = useState(true);

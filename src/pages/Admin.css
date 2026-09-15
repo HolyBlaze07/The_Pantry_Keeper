@@ -1,0 +1,167 @@
+.admin-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  box-sizing: border-box;
+  background-color: #09070f;
+  background-image:
+    linear-gradient(rgba(139, 125, 209, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 125, 209, 0.07) 1px, transparent 1px),
+    radial-gradient(
+      circle 600px at 50% 35%,
+      rgba(139, 125, 209, 0.45),
+      rgba(113, 101, 181, 0.2) 35%,
+      rgba(9, 7, 15, 0) 70%
+    );
+  background-size:
+    32px 32px,
+    32px 32px,
+    100% 100%;
+  color: #fff1d6;
+}
+
+.admin-panel {
+  width: 100%;
+  max-width: 560px;
+  padding: 42px;
+  box-sizing: border-box;
+  background: rgba(13, 9, 18, 0.96);
+  border: 1px solid #51467e;
+  border-radius: 22px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(113, 101, 181, 0.12);
+}
+
+.admin-eyebrow {
+  margin: 0 0 10px;
+  color: #e6c27a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+}
+
+.admin-panel h1 {
+  margin: 0 0 14px;
+  color: #fff1d6;
+  font-family: "Gorditas", "Trebuchet MS", sans-serif;
+  font-size: clamp(28px, 5vw, 38px);
+  line-height: 1.15;
+}
+
+.admin-panel > p:not(.admin-eyebrow) {
+  margin: 0 0 30px;
+  color: #d9c2a3;
+  line-height: 1.6;
+}
+
+.admin-invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 26px;
+  padding: 24px;
+  background: #151020;
+  border: 1px solid #51467e;
+  border-radius: 14px;
+}
+
+.admin-invite-form label {
+  color: #e6c27a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.admin-invite-form input {
+  width: 100%;
+  padding: 14px 15px;
+  box-sizing: border-box;
+  color: #fff1d6;
+  background: #0d0912;
+  border: 1px solid #51467e;
+  border-radius: 9px;
+  font: inherit;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-invite-form input::placeholder {
+  color: #8f7965;
+}
+
+.admin-invite-form input:focus {
+  border-color: #8b7dd1;
+  box-shadow: 0 0 0 3px rgba(139, 125, 209, 0.16);
+}
+
+.admin-invite-form button {
+  margin-top: 8px;
+  padding: 14px 20px;
+  color: #0d0908;
+  background: #d9a85f;
+  border: none;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.admin-invite-form button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.admin-invite-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.admin-invite-form [role="status"] {
+  margin: 8px 0 0;
+  padding: 12px;
+  color: #fff1d6;
+  background: rgba(113, 101, 181, 0.16);
+  border: 1px solid #7165b5;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.admin-invite-form [role="alert"] {
+  margin: 8px 0 0;
+  padding: 12px;
+  color: #fff1d6;
+  background: rgba(150, 60, 60, 0.18);
+  border: 1px solid rgba(220, 100, 100, 0.55);
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.admin-panel > a {
+  color: #d9a85f;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-panel > a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .admin-page {
+    padding: 20px 14px;
+  }
+
+  .admin-panel {
+    padding: 30px 20px;
+  }
+
+  .admin-invite-form {
+    padding: 18px;
+  }
+}
