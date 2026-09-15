@@ -517,7 +517,19 @@ function RecipeSuggestions({
       });
 
       if (!response.ok) {
-        throw new Error("Recipe request failed.");
+        let serverMessage = "Recipe request failed.";
+
+        try {
+          const errorData = (await response.json()) as { error?: unknown };
+
+          if (typeof errorData.error === "string" && errorData.error.trim() !== "") {
+            serverMessage = errorData.error;
+          }
+        } catch {
+          // Keep the generic message when the server response is not JSON.
+        }
+
+        throw new Error(serverMessage);
       }
 
       const data = (await response.json()) as {
@@ -587,10 +599,9 @@ function RecipeSuggestions({
             type="button"
             onClick={handleSuggestRecipes}
             disabled={isLoading || groceries.length === 0}
+            aria-busy={isLoading}
           >
-            {isLoading
-              ? "Finding Recipes..."
-              : "Suggest Recipes"}
+            {isLoading ? "🍳 Cooking Up Ideas..." : "Suggest Recipes"}
           </button>
 
           <button

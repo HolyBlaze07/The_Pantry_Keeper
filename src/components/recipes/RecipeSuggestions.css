@@ -57,7 +57,7 @@
 }
 
 .recipe-suggestions__heading button:disabled {
-  cursor: not-allowed;
+  cursor: wait;
   opacity: 0.55;
 }
 
