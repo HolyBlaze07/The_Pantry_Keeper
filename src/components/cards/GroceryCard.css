@@ -1018,40 +1018,36 @@ img.grocery-card__sprite {
 
 @media (hover: none), (pointer: coarse) {
   .grocery-card,
-  .grocery-card:hover {
+  .grocery-card:hover,
+  .grocery-card:active {
     --lift-y: 0px;
     --hover-scale: 1;
     --correction: 100%;
+    --rotate-x: 0deg;
+    --rotate-y: 0deg;
+    --ratio-x: 0;
+    --ratio-y: 0;
+
+    transform: none;
+    transform-style: flat;
+    transition: box-shadow 180ms ease;
+  }
+
+  .grocery-card__holo-bg,
+  .grocery-card__holo-lines,
+  .grocery-card__shadow,
+  .grocery-card__circles,
+  .grocery-card__logo {
+    display: none;
+  }
+
+  .grocery-card__inner {
     transform: none;
   }
 
-  .grocery-card__holo-bg {
-    display: block;
-    opacity: 0.18;
-  }
-
-  .grocery-card__holo-lines {
-    display: block;
-    opacity: 0.14;
-  }
-
-  .grocery-card__shadow {
-    display: block;
-    opacity: 0.3;
-  }
-
-  .grocery-card__circles {
-    display: block;
-    opacity: 0.16;
-  }
-
-  .grocery-card:active {
-    --hover-scale: 0.99;
-  }
-
-  .grocery-card:active .grocery-card__holo-bg,
-  .grocery-card:active .grocery-card__holo-lines {
-    opacity: 0.5;
+  .grocery-card:hover .grocery-card__logo::after,
+  .grocery-card:hover .grocery-card__name {
+    animation: none;
   }
 }
 

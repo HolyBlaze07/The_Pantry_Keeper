@@ -430,9 +430,31 @@ function GroceryCard({
   }
 
   useEffect(() => {
+    const finePointerQuery = window.matchMedia(
+      "(hover: hover) and (pointer: fine)",
+    );
+
+    if (!finePointerQuery.matches) {
+      const cardElement = cardRef.current;
+
+      if (cardElement) {
+        cardElement.style.setProperty("--rotate-x", "0deg");
+        cardElement.style.setProperty("--rotate-y", "0deg");
+        cardElement.style.setProperty("--ratio-x", "0");
+        cardElement.style.setProperty("--ratio-y", "0");
+      }
+
+      return;
+    }
+
     let animationFrameId = 0;
+    let isRunning = true;
 
     function animate() {
+      if (!isRunning) {
+        return;
+      }
+
       const cardElement = cardRef.current;
 
       if (cardElement) {
@@ -469,12 +491,18 @@ function GroceryCard({
     animationFrameId = window.requestAnimationFrame(animate);
 
     return () => {
-      window.cancelAnimationFrame(animationFrameId);
+      isRunning = false;
+
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
     };
   }, []);
 
   function handlePointerMove(event: PointerEvent<HTMLElement>) {
-    if (!window.matchMedia("(pointer: fine)").matches) {
+    if (
+      !window.matchMedia("(hover: hover) and (pointer: fine)").matches
+    ) {
       return;
     }
 
@@ -499,7 +527,9 @@ function GroceryCard({
   }
 
   function handlePointerLeave() {
-    if (!window.matchMedia("(pointer: fine)").matches) {
+    if (
+      !window.matchMedia("(hover: hover) and (pointer: fine)").matches
+    ) {
       return;
     }
 
