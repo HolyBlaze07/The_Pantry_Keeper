@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 
 import { supabase } from '../../lib/supabase'
-import FaultyTerminal from './FaultyTerminal'
-import ImageTrail from './ImageTrail'
 import strawberrySprite from '../../assets/food sprites/fruit_strawberry.png'
 import pastryBreadSprite from '../../assets/food sprites/pastry_bread.png'
 import chocolateCakeSprite from '../../assets/food sprites/cake_chocolate.png'
@@ -14,8 +12,13 @@ import appleSprite from '../../assets/food sprites/fruit_apple.png'
 
 import './AuthForm.css'
 
+const FaultyTerminal = lazy(() => import('./FaultyTerminal'))
+const ImageTrail = lazy(() => import('./ImageTrail'))
+
 function AuthForm() {
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(() =>
+    window.matchMedia('(max-width: 800px), (pointer: coarse)').matches,
+  )
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -35,7 +38,7 @@ function AuthForm() {
   ]
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 800px)')
+    const mediaQuery = window.matchMedia('(max-width: 800px), (pointer: coarse)')
     const updateIsMobile = () => {
       setIsMobile(mediaQuery.matches)
     }
@@ -143,31 +146,39 @@ function AuthForm() {
   return (
     <main className="auth-page">
       <div className="auth-page-terminal" aria-hidden="true">
-        <FaultyTerminal
-          scale={isMobile ? 1.1 : 1.5}
-          gridMul={isMobile ? [1.3, 1] : [2, 1]}
-          digitSize={isMobile ? 1 : 1.2}
-          timeScale={isMobile ? 0.36 : 0.5}
-          pause={false}
-          scanlineIntensity={isMobile ? 0.28 : 0.5}
-          glitchAmount={isMobile ? 0.45 : 1}
-          flickerAmount={isMobile ? 0.4 : 1}
-          noiseAmp={isMobile ? 0.45 : 1}
-          chromaticAberration={0}
-          dither={0}
-          curvature={isMobile ? 0.05 : 0.1}
-          tint="#8B7CFF"
-          mouseReact={!isMobile}
-          mouseStrength={isMobile ? 0.2 : 0.5}
-          pageLoadAnimation
-          brightness={isMobile ? 0.48 : 0.6}
-        />
+        {!isMobile && (
+          <Suspense fallback={null}>
+            <FaultyTerminal
+              scale={1.5}
+              gridMul={[2, 1]}
+              digitSize={1.2}
+              timeScale={0.5}
+              pause={false}
+              scanlineIntensity={0.5}
+              glitchAmount={1}
+              flickerAmount={1}
+              noiseAmp={1}
+              chromaticAberration={0}
+              dither={0}
+              curvature={0.1}
+              tint="#8B7CFF"
+              mouseReact
+              mouseStrength={0.5}
+              pageLoadAnimation
+              brightness={0.6}
+            />
+          </Suspense>
+        )}
       </div>
 
       <section className="auth-shell" aria-label="Account access">
         <section className="auth-brand-panel" aria-hidden="true">
           <div className="auth-brand__trail" aria-hidden="true">
-            <ImageTrail items={trailItems} />
+            {!isMobile && (
+              <Suspense fallback={null}>
+                <ImageTrail items={trailItems} />
+              </Suspense>
+            )}
           </div>
 
           <h2 className="auth-brand__name">Amealy</h2>
